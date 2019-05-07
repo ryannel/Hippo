@@ -1,7 +1,6 @@
 package template
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -29,19 +28,6 @@ func WriteTempalte(template string, envName string, module string, fileName stri
 	_, err = file.WriteString(template)
 
 	return err
-}
-
-func GetTemplate(fileName string) (string, error) {
-	templatePath := getTemplatePath()
-	templatePath = filepath.Join(templatePath, fileName)
-
-
-	data, err := ioutil.ReadFile(templatePath)
-	return string(data), err
-}
-
-func getTemplatePath() string {
-	return filepath.Join("..", "..", "template")
 }
 
 func getTemplateBuildPath()(string, error) {

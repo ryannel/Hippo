@@ -1,0 +1,4 @@
+AzureUser: test
+AzureOrg: test
+Environments:
+  local: --local

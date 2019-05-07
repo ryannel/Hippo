@@ -1,0 +1,4 @@
+AzureUser: test
+AzureOrg: test
+Environments:
+  dev: --context docker-for-desktop --namespace default

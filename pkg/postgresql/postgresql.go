@@ -1,10 +1,9 @@
 package postgresql
 
 import (
-	"hippo/pkg/kubernetes"
+	_ "github.com/lib/pq"
 	"hippo/pkg/template"
 	"hippo/pkg/util"
-	"os/exec"
 	"strings"
 )
 
@@ -47,18 +46,26 @@ func generateDeployYaml(dbName string, user string, password string) (string, er
 }
 
 func CreateDb(dbName string, user string, password string) error {
-	podName, err := kubernetes.GetPodName("postgresql")
-	if err != nil {
-		return err
-	}
-
-	println(`Creating development db: kubectl.exe exec -it ` + podName + ` -- bash -c "echo \"CREATE USER \\\"` + user + `\\\" WITH PASSWORD '` + password + `'; CREATE DATABASE \\\"` + dbName + `\\\" WITH OWNER \\\"` + user + `\\\" ENCODING utf8\" | psql -U postgres -f -"`)
-
-	_, err = exec.Command("kubectl.exe",  "exec", "-it", podName, "--", "bash", "-c", `"echo hello"`).Output()
-	//_, err = exec.Command("kubectl.exe",  "exec", "-it", podName, "--", "bash", "-c", `"echo \"CREATE USER \\\"` + user + `\\\" WITH PASSWORD '` + password + `'; CREATE DATABASE \\\"` + dbName + `\\\" WITH OWNER \\\"` + user + `\\\" ENCODING utf8\" | psql -U postgres -f -"`).Output()
-	if err != nil {
-		return err
-	}
+	//podName, err := kubernetes.GetPodName("postgresql")
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//println(`Creating development db: kubectl.exe exec -it ` + podName + ` -- bash -c "echo \"CREATE USER \\\"` + user + `\\\" WITH PASSWORD '` + password + `'; CREATE DATABASE \\\"` + dbName + `\\\" WITH OWNER \\\"` + user + `\\\" ENCODING utf8\" | psql -U postgres -f -"`)
+	//
+	//connStr := "User ID=" + user + ";Password=" + password + ";Host=localhost;Port=5432;Database=" + dbName + ";"
+	//
+	//db, err := sql.Open("postgres", connStr)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//defer db.Close()
+	//
+	//_, err = exec.Command("kubectl.exe",  "exec", "-it", podName, "--", "bash", "-c", `"echo hello"`).Output()
+	////_, err = exec.Command("kubectl.exe",  "exec", "-it", podName, "--", "bash", "-c", `"echo \"CREATE USER \\\"` + user + `\\\" WITH PASSWORD '` + password + `'; CREATE DATABASE \\\"` + dbName + `\\\" WITH OWNER \\\"` + user + `\\\" ENCODING utf8\" | psql -U postgres -f -"`).Output()
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }

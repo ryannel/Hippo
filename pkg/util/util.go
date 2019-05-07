@@ -3,7 +3,11 @@ package util
 import (
 	"errors"
 	"github.com/manifoldco/promptui"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 func PromptString(label string) (string, error) {
@@ -58,3 +62,24 @@ func Select(label string, items []string) (string, error) {
 	return result, err
 }
 
+func CreateFile(projectFolder string, fileName string, content string) error {
+	fileName = filepath.Join(projectFolder, fileName)
+	file, err := os.Create(fileName)
+	if err != nil {
+		return  err
+	}
+
+	_, err = file.WriteString(content)
+	return err
+}
+
+func PromptYN(promtText string) bool {
+	result, _ := PromptString(promtText + ": y/n")
+	return result == "y" || result == "Y"
+}
+
+func ExecStringCommand(command string) (string, error) {
+	args := strings.Fields(command)
+	result, err := exec.Command(args[0], args[1:]...).Output()
+	return string(result), err
+}

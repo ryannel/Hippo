@@ -97,3 +97,69 @@ spec:
     	app: rabbitmq
   	type: LoadBalancer`
 }
+
+func GetGenericDeployYaml() string {
+	return `apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: {projectname}
+  name: {projectname}
+  annotations:
+    kubernetes.io/change-cause: "${TIMESTAMP} Deployed commit id: ${COMMIT}"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: {projectname}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {projectname}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: "app"
+                  operator: In
+                  values:
+                  - {projectname}
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: {projectname}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+        imagePullPolicy: Always
+        image: ${DOCKER_REGISTRY_URL}/{projectname}:\${COMMIT}
+        ports:
+        - containerPort: 80
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {projectname}
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: {projectname}
+  type: ClusterIP`
+}
