@@ -6,6 +6,7 @@ import (
 	"hippo/pkg/util"
 	"hippo/pkg/scaffold"
 	"log"
+	"strings"
 )
 
 func init() {
@@ -23,23 +24,35 @@ Some usage examples.
 		if len(args) < 1 {
 			return errors.New("requires an project name argument")
 		}
+
 		if len(args) > 1 {
 			return errors.New("project name can't include spaces")
+		}
+
+		if strings.ToLower(args[0])[0] != args[0][0] {
+			return errors.New("project name must be lower case")
 		}
 
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		projectName := args[0]
-		language, err := util.Select("Project Language", []string{scaffold.GoLang, "Bare"})
+		language, err := util.PromptSelect("Project Language", []string{scaffold.GoLang, "Bare"})
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = scaffold.Scaffold(projectName, language)
+		dockerRegistryUrl, err := util.PromptString("Docker Registry URL")
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		err = scaffold.Scaffold(projectName, language, dockerRegistryUrl)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Print("Project has been created at `./" + projectName + "`")
 	},
 }
 

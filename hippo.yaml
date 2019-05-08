@@ -1,4 +1,7 @@
-AzureUser: test
-AzureOrg: test
+VersionControlSystem: azure
+AzureOrg: org
+AzureProject: proj
+AzureUser: user
+AzureToken: toke
 Environments:
-  dev: --context docker-for-desktop --namespace default
+  test: asdfsdfsaf

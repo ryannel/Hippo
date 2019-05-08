@@ -1,6 +1,6 @@
 module hippo
 
-go 1.12
+go 1.12.5
 
 require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect

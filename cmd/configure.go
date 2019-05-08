@@ -30,6 +30,7 @@ Some usage examples.
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Print("Configuration Completed.")
 	},
 }
 

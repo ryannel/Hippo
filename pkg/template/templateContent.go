@@ -144,7 +144,7 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 5
         imagePullPolicy: Always
-        image: ${DOCKER_REGISTRY_URL}/{projectname}:\${COMMIT}
+        image: {dockerRegistryUrl}/{projectname}:\${COMMIT}
         ports:
         - containerPort: 80
       restartPolicy: Always

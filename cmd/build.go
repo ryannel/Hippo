@@ -3,43 +3,37 @@ package cmd
 import (
 	"errors"
 	"github.com/spf13/cobra"
-	"hippo/pkg/deploy"
+	"hippo/pkg/build"
 	"hippo/pkg/environment"
 	"log"
 	"os/exec"
 )
 
 func init() {
-	rootCmd.AddCommand(deployCmd)
+	rootCmd.AddCommand(buildCmd)
 }
 
 // TODO: Add usage examples
-var deployCmd = &cobra.Command{
-	Use:   "deploy",
-	Short: "deploys the current project into Kubernetes",
-	Long:  `deploys the current project into Kubernetes
+var buildCmd = &cobra.Command{
+	Use:   "build",
+	Short: "builds the current project's docker image",
+	Long:  `builds the current project's docker image
 
 Some usage examples.
 `,
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("an environment name must be provided")
+		if len(args) != 0 {
+			return errors.New("build takes no arguments")
 		}
-
-		if len(args) > 1 {
-			return errors.New("environment name can't contain spaces")
-		}
-
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		envName := args[0]
 		config, err := environment.GetConfig()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = deploy.Deploy(envName, config)
+		err = build.Build(config)
 		if err != nil {
 			exitError, isExitError := err.(*exec.ExitError)
 			if isExitError {
@@ -48,7 +42,7 @@ Some usage examples.
 			log.Fatal(err)
 		}
 
-		log.Print("Deployment Completed.")
+		log.Print("Build Completed.")
 	},
 }
 

@@ -29,7 +29,7 @@ var setupCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		result, err := util.Select("test", []string{"RabbitMq", "PostgreSQL", "Done"})
+		result, err := util.PromptSelect("test", []string{"RabbitMq", "PostgreSQL", "Done"})
 		if err != nil {
 			log.Fatal(err)
 		}

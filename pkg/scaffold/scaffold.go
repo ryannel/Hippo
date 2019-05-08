@@ -13,7 +13,7 @@ const (
 	GoLang = "Go Lang"
 )
 
-func Scaffold(projectName string, language string) error {
+func Scaffold(projectName string, language string, dockerRegistryUrl string) error {
 	projectFolder, err := createProjectFolder(projectName)
 	if err != nil {
 		return errors.New("project folder already exists")
@@ -24,7 +24,7 @@ func Scaffold(projectName string, language string) error {
 		return err
 	}
 
-	err = createDeploymentFile(projectFolder, projectName)
+	err = createDeploymentFile(projectFolder, projectName, dockerRegistryUrl)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func createEditorConfig(projectFolder string) error {
 	return util.CreateFile(projectFolder, ".editorconfig", "")
 }
 
-func createDeploymentFile(projectFolder string, projectName string) error {
+func createDeploymentFile(projectFolder string, projectName string, dockerRegistryUrl string) error {
 	deploymentFilePath := filepath.Join(projectFolder, "deployment_files")
 	err := os.Mkdir(deploymentFilePath, os.ModePerm)
 	if err != nil {
@@ -82,6 +82,7 @@ func createDeploymentFile(projectFolder string, projectName string) error {
 
 	templateContent := template.GetGenericDeployYaml()
 	templateContent = strings.Replace(templateContent, "{projectname}", projectName, -1)
+	templateContent = strings.Replace(templateContent, "{dockerRegistryUrl}", dockerRegistryUrl, -1)
 
 	err = util.CreateFile(deploymentFilePath, "deploy.yaml", templateContent)
 

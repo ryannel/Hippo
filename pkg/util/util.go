@@ -51,7 +51,7 @@ func PromptPassword(label string) (string, error) {
 	return prompt.Run()
 }
 
-func Select(label string, items []string) (string, error) {
+func PromptSelect(label string, items []string) (string, error) {
 	prompt := promptui.Select{
 		Label: label,
 		Items: items,
@@ -82,4 +82,14 @@ func ExecStringCommand(command string) (string, error) {
 	args := strings.Fields(command)
 	result, err := exec.Command(args[0], args[1:]...).Output()
 	return string(result), err
+}
+
+func GetCurrentFolderName() (string, error){
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	parent := filepath.Base(pwd)
+
+	return parent, err
 }
