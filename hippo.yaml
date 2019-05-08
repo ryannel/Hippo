@@ -1,7 +1,0 @@
-VersionControlSystem: azure
-AzureOrg: org
-AzureProject: proj
-AzureUser: user
-AzureToken: toke
-Environments:
-  test: asdfsdfsaf
