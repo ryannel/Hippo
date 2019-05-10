@@ -3,8 +3,9 @@ package cmd
 import (
 	"errors"
 	"github.com/spf13/cobra"
-	"hippo/pkg/build"
-	"hippo/pkg/environment"
+	"github.com/ryannel/hippo/pkg/docker"
+	"github.com/ryannel/hippo/pkg/environment"
+	"github.com/ryannel/hippo/pkg/versionControl"
 	"log"
 	"os/exec"
 )
@@ -33,7 +34,7 @@ Some usage examples.
 			log.Fatal(err)
 		}
 
-		err = build.Build(config)
+		err = build(config)
 		if err != nil {
 			exitError, isExitError := err.(*exec.ExitError)
 			if isExitError {
@@ -46,6 +47,27 @@ Some usage examples.
 	},
 }
 
+func build(config environment.EnvConfig) error {
+	registryUrl := config.DockerRegistryUrl
+	imageName := config.Project
+
+	vcs := versionControl.New(config)
+	commit, err := vcs.GetCommit()
+
+	err = docker.Build(registryUrl, imageName, commit)
+	if err != nil {
+		return err
+	}
+
+	tag, err := vcs.GetBranchReplaceSlash()
+	if err != nil {
+		return err
+	}
+
+	err = docker.Tag(registryUrl, commit, tag)
+
+	return err
+}
 
 
 

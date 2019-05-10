@@ -2,8 +2,8 @@ package scaffold
 
 import (
 	"errors"
-	"hippo/pkg/template"
-	"hippo/pkg/util"
+	"github.com/ryannel/hippo/pkg/template"
+	"github.com/ryannel/hippo/pkg/util"
 	"os"
 	"path/filepath"
 	"strings"
@@ -93,7 +93,7 @@ func createLanguageSpecificFiles(projectFolder string, language string) error  {
 	var err error
 
 	switch language {
-	case GoLang:  err = scaffoldGoLangDotFiles(projectFolder)
+	case GoLang:  err = scaffoldGoLang(projectFolder)
 	}
 
 	return err

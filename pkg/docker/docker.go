@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"hippo/pkg/util"
+	"github.com/ryannel/hippo/pkg/util"
 	"log"
 )
 
@@ -13,8 +13,12 @@ func Build(registryUrl string, imageName string, commit string) error {
 	return err
 }
 
-func Tag() {
+func Tag(registryUrl string, commit string, dockerTag string) error {
+	command := "docker tag "+registryUrl+"/"+commit+" "+registryUrl+":"+dockerTag
+	log.Print("Tagging image with tag (" + dockerTag + "): " + command)
+	_, err := util.ExecStringCommand(command)
 
+	return err
 }
 
 func Push() {

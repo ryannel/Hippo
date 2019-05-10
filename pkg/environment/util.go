@@ -1,7 +1,7 @@
 package environment
 
 import (
-	"hippo/pkg/util"
+	"github.com/ryannel/hippo/pkg/util"
 	"os"
 )
 

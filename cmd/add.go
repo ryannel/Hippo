@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"errors"
+	"github.com/ryannel/hippo/pkg/postgresql"
+	"github.com/ryannel/hippo/pkg/rabbitmq"
+	"github.com/ryannel/hippo/pkg/util"
 	"github.com/spf13/cobra"
-	"hippo/pkg/postgresql"
-	"hippo/pkg/rabbitmq"
-	"hippo/pkg/util"
 	"log"
 )
 

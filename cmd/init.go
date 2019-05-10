@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"hippo/pkg/postgresql"
+	"github.com/ryannel/hippo/pkg/postgresql"
 	"log"
 )
 

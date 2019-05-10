@@ -3,8 +3,8 @@ package environment
 import (
 	"errors"
 	"gopkg.in/yaml.v2"
-	vcsEnum "hippo/pkg/enum/versionControl"
-	"hippo/pkg/util"
+	vcsEnum "github.com/ryannel/hippo/pkg/enum/versionControl"
+	"github.com/ryannel/hippo/pkg/util"
 	"io/ioutil"
 	"os"
 )

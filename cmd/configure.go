@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 	"github.com/spf13/cobra"
-	"hippo/pkg/environment"
+	"github.com/ryannel/hippo/pkg/environment"
 	"log"
 )
 

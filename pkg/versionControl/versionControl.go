@@ -1,8 +1,8 @@
 package versionControl
 
 import (
-	"hippo/pkg/environment"
-	"hippo/pkg/util"
+	"github.com/ryannel/hippo/pkg/environment"
+	"github.com/ryannel/hippo/pkg/util"
 	"log"
 	"strings"
 )

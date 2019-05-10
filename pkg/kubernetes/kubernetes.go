@@ -2,8 +2,8 @@ package kubernetes
 
 import (
 	"errors"
-	"hippo/pkg/environment"
-	"hippo/pkg/util"
+	"github.com/ryannel/hippo/pkg/environment"
+	"github.com/ryannel/hippo/pkg/util"
 	"log"
 	"os/exec"
 )

@@ -3,10 +3,12 @@ package cmd
 import (
 	"errors"
 	"github.com/spf13/cobra"
-	"hippo/pkg/deploy"
-	"hippo/pkg/environment"
+	"github.com/ryannel/hippo/pkg/environment"
+	"github.com/ryannel/hippo/pkg/kubernetes"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func init() {
@@ -39,7 +41,7 @@ Some usage examples.
 			log.Fatal(err)
 		}
 
-		err = deploy.Deploy(envName, config)
+		err = deploy(envName, config)
 		if err != nil {
 			exitError, isExitError := err.(*exec.ExitError)
 			if isExitError {
@@ -52,6 +54,20 @@ Some usage examples.
 	},
 }
 
+func deploy(envName string, config environment.EnvConfig) error {
+	projectFolder, err := os.Getwd()
+	if err != nil {
+		return err
+	}
 
+	deployYaml := filepath.Join(projectFolder, "deployment_files", "deploy.yaml")
+
+	k8, err := kubernetes.New(envName, config)
+	if err != nil {
+		return err
+	}
+
+	return k8.Deploy(deployYaml)
+}
 
 

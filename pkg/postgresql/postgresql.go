@@ -2,8 +2,8 @@ package postgresql
 
 import (
 	_ "github.com/lib/pq"
-	"hippo/pkg/template"
-	"hippo/pkg/util"
+	"github.com/ryannel/hippo/pkg/template"
+	"github.com/ryannel/hippo/pkg/util"
 	"strings"
 )
 

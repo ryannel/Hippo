@@ -1,4 +1,4 @@
-module hippo
+module github.com/ryannel/hippo
 
 go 1.12.5
 

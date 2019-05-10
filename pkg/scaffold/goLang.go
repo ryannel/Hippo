@@ -1,8 +1,14 @@
 package scaffold
 
-import "hippo/pkg/util"
+import (
+	"github.com/ryannel/hippo/pkg/template"
+	"github.com/ryannel/hippo/pkg/util"
+	"log"
+	"path/filepath"
+	"strings"
+)
 
-func scaffoldGoLangDotFiles(projectFolder string) error {
+func scaffoldGoLang(projectFolder string) error {
 	err := createGitIgnore(projectFolder)
 	if err != nil {
 		return err
@@ -11,6 +17,11 @@ func scaffoldGoLangDotFiles(projectFolder string) error {
 	err = createMain(projectFolder)
 	if err != nil {
 	    return err
+	}
+
+	err = createDockerFile(projectFolder)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -40,4 +51,21 @@ func createGitIgnore(projectFolder string) error {
 
 # Dependency directories (remove the comment below to include it)
 # vendor/`)
+}
+
+func createDockerFile(projectFolder string) error {
+	dockerFile := template.GetGoDockerFile()
+	projectName  := filepath.Base(projectFolder)
+
+	dockerFile = strings.Replace(dockerFile, "{projectname}", projectName, -1)
+
+	return util.CreateFile(projectFolder, "Dockerfile", dockerFile)
+}
+
+func createGoModule(projectFolder string) error {
+	command := "go mod init "
+	log.Print("Init Go Module: " + command)
+
+	_, err := util.ExecStringCommand(command)
+	return err
 }

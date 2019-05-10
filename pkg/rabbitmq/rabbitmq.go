@@ -1,8 +1,8 @@
 package rabbitmq
 
 import (
-	"hippo/pkg/template"
-	"hippo/pkg/util"
+	"github.com/ryannel/hippo/pkg/template"
+	"github.com/ryannel/hippo/pkg/util"
 	"strings"
 )
 

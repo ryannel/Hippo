@@ -3,8 +3,8 @@ package cmd
 import (
 	"errors"
 	"github.com/spf13/cobra"
-	"hippo/pkg/util"
-	"hippo/pkg/scaffold"
+	"github.com/ryannel/hippo/pkg/util"
+	"github.com/ryannel/hippo/pkg/scaffold"
 	"log"
 	"strings"
 )
