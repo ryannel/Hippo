@@ -14,7 +14,12 @@ type VersionControl struct{
 func (vcs *VersionControl) GetBranch() (string, error) {
 	command := "git rev-parse --abbrev-ref HEAD"
 	log.Print("Getting branch name: " + command)
-	return util.ExecStringCommand(command)
+	branch, err := util.ExecStringCommand(command)
+	if err != nil {
+		return "", err
+	}
+
+	return util.StripNewLine(branch), nil
 }
 
 func (vcs *VersionControl) GetBranchReplaceSlash() (string, error) {
@@ -31,7 +36,12 @@ func (vcs *VersionControl) GetBranchReplaceSlash() (string, error) {
 func (vcs *VersionControl) GetCommit() (string, error) {
 	command := "git rev-parse HEAD"
 	log.Print("Getting Commit: " + command)
-	return util.ExecStringCommand(command)
+	commit, err := util.ExecStringCommand(command)
+	if err != nil {
+		return "", err
+	}
+
+	return util.StripNewLine(commit), nil
 }
 
 func New(config environment.EnvConfig) VersionControl {

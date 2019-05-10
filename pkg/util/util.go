@@ -93,3 +93,7 @@ func GetCurrentFolderName() (string, error){
 
 	return parent, err
 }
+
+func StripNewLine(input string) string {
+	return strings.Replace(input, "\n", "", -1)
+}
