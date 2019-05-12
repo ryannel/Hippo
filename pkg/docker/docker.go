@@ -17,9 +17,9 @@ func Build(name string, tag string) error {
 	return util.ExecCommandStreamingOut(command)
 }
 
-func Tag(sourceImage string, targetImage string, tag string) error {
-	command := strings.ToLower("docker tag "+sourceImage+ " " +targetImage+":"+ tag)
-	log.Print("Tagging image with tag (" + tag + "): " + command)
+func Tag(sourceImage string, sourceTag string, targetImage string, targetTag string) error {
+	command := strings.ToLower("docker tag "+sourceImage+ ":" + sourceTag+ " " +targetImage+":"+ targetTag)
+	log.Print("Tagging image : " + command)
 	_, err := util.ExecStringCommand(command)
 
 	return err

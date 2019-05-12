@@ -51,7 +51,12 @@ func build() {
 	err = docker.Build(name, commitTag)
 	util.HandleFatalError(err)
 
-	err = docker.Tag(name+"/"+commitTag, name, branchTag)
+	if branchTag == "master" {
+		err = docker.Tag(name, commitTag, name, "latest")
+		util.HandleFatalError(err)
+	}
+
+	err = docker.Tag(name, commitTag, name, branchTag)
 	util.HandleFatalError(err)
 
 	log.Print("Build Completed.")
