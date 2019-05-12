@@ -1,4 +1,4 @@
-package buildPipeline
+package buildPipelines
 
 const(
 	Azure = "azure"

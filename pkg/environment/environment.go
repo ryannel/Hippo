@@ -3,14 +3,15 @@ package environment
 import (
 	"errors"
 	"gopkg.in/yaml.v2"
-	vcsEnum "github.com/ryannel/hippo/pkg/enum/versionControl"
+	vcsEnum "github.com/ryannel/hippo/pkg/enum/versionControls"
 	"github.com/ryannel/hippo/pkg/util"
 	"io/ioutil"
 	"os"
 )
 
 type EnvConfig struct {
-	Project string
+	ProjectName string `yaml:"ProjectName"`
+	Language string `yaml:"Language"`
 	VersionControl string `yaml:"VersionControl"`
 
 	AzureOrg string `yaml:"AzureOrg"`
@@ -41,7 +42,7 @@ func GetConfig() (EnvConfig, error){
 		return config, err
 	}
 
-	config.Project, err = util.GetCurrentFolderName()
+	config.ProjectName, err = util.GetCurrentFolderName()
 	if err != nil {
 		return config, err
 	}
@@ -52,14 +53,6 @@ func GetConfig() (EnvConfig, error){
 }
 
 func validateEnv(config EnvConfig) error {
-	if config.AzureUser == "" {
-		return errors.New("DockerRegistryUrl not set in hippo.yaml. Run `hippo configure` to reconfigure")
-	}
-
-	if len(config.Environments) == 0 {
-		return errors.New("no kubernetes environments configured. Run `hippo configure` to reconfigure")
-	}
-
 	if config.VersionControl != vcsEnum.Azure && config.VersionControl != vcsEnum.Github && config.VersionControl != vcsEnum.None {
 		return errors.New("VersionControl config (" + config.VersionControl + ") is invalid. Must be either: azure, github or none")
 	}

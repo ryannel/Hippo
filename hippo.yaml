@@ -1,8 +1,0 @@
-DockerRegistryUrl: quay.io/volvocars
-VersionControl: azure
-AzureOrg: volvocargroup
-AzureProject: dspa
-AzureUser: ryann@volvocars.com
-AzureToken: token
-Environments:
-  local: --context local

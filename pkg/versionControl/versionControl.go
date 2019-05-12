@@ -1,15 +1,14 @@
 package versionControl
 
 import (
-	"github.com/ryannel/hippo/pkg/environment"
+	"errors"
 	"github.com/ryannel/hippo/pkg/util"
 	"log"
+	"path/filepath"
 	"strings"
 )
 
-type VersionControl struct{
-	config environment.EnvConfig
-}
+type VersionControl struct{}
 
 func (vcs *VersionControl) GetBranch() (string, error) {
 	command := "git rev-parse --abbrev-ref HEAD"
@@ -44,7 +43,17 @@ func (vcs *VersionControl) GetCommit() (string, error) {
 	return util.StripNewLine(commit), nil
 }
 
-func New(config environment.EnvConfig) VersionControl {
-	return VersionControl{config}
+func New() (VersionControl, error) {
+	gitPath := filepath.Join(".", ".git")
+	exists, err := util.PathExists(gitPath)
+	if err != nil {
+		return VersionControl{}, err
+	}
+
+	if !exists {
+		return VersionControl{}, errors.New("not a git repository. Please run `git init`")
+	}
+
+	return VersionControl{}, nil
 }
 

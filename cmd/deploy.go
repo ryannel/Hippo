@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"errors"
-	"github.com/spf13/cobra"
 	"github.com/ryannel/hippo/pkg/environment"
 	"github.com/ryannel/hippo/pkg/kubernetes"
+	"github.com/ryannel/hippo/pkg/util"
+	"github.com/spf13/cobra"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 )
 
@@ -42,13 +42,7 @@ Some usage examples.
 		}
 
 		err = deploy(envName, config)
-		if err != nil {
-			exitError, isExitError := err.(*exec.ExitError)
-			if isExitError {
-				log.Print(string(exitError.Stderr))
-			}
-			log.Fatal(err)
-		}
+		util.HandleFatalError(err)
 
 		log.Print("Deployment Completed.")
 	},

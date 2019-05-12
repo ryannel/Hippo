@@ -2,11 +2,14 @@ package cmd
 
 import (
 	"errors"
-	"github.com/spf13/cobra"
+	"github.com/ryannel/hippo/pkg/configManager"
+	languageEnum "github.com/ryannel/hippo/pkg/enum/languages"
+	"github.com/ryannel/hippo/pkg/scaffoldManager"
 	"github.com/ryannel/hippo/pkg/util"
-	"github.com/ryannel/hippo/pkg/scaffold"
+	"github.com/spf13/cobra"
 	"log"
-	"strings"
+	"os"
+	"path/filepath"
 )
 
 func init() {
@@ -29,31 +32,51 @@ Some usage examples.
 			return errors.New("project name can't include spaces")
 		}
 
-		if strings.ToLower(args[0])[0] != args[0][0] {
-			return errors.New("project name must be lower case")
-		}
-
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		projectName := args[0]
-		language, err := util.PromptSelect("Project Language", []string{scaffold.GoLang, "Bare"})
-		if err != nil {
-			log.Fatal(err)
-		}
 
-		dockerRegistryUrl, err := util.PromptString("Docker Registry URL")
-		if err != nil {
-			log.Fatal(err)
-		}
+		language, err := util.PromptSelect("Project Language", []string{languageEnum.GoLang, "Bare"})
+		util.HandleFatalError(err)
 
-		err = scaffold.Scaffold(projectName, language, dockerRegistryUrl)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		log.Print("Project has been created at `./" + projectName + "`")
+		scaffoldProject(projectName, language)
 	},
+}
+
+func scaffoldProject (projectName string, language string) {
+	projectFolderPath := scaffoldManager.CreateProjectFolder(projectName)
+
+	scaffold, err := scaffoldManager.New(projectName, projectFolderPath, language)
+
+	err = scaffold.CreateProjectTemplate()
+	util.HandleFatalError(err)
+
+	err = scaffold.CreateEditorConfig()
+	util.HandleFatalError(err)
+
+	err = scaffold.CreateReadme()
+	util.HandleFatalError(err)
+
+	err = configManager.CreateConfigFile(projectFolderPath)
+	util.HandleFatalError(err)
+
+	configPath := filepath.Join(projectFolderPath, "hippo.yaml")
+	_, err = os.Create(configPath)
+	util.HandleFatalError(err)
+
+	confManager, err := configManager.New(configPath)
+	util.HandleFatalError(err)
+
+	err = confManager.SetProjectName(projectName)
+	util.HandleFatalError(err)
+
+	err = confManager.SetLanguage(language)
+	util.HandleFatalError(err)
+
+	util.HandleFatalError(err)
+
+	log.Print("Project has been created at `./" + projectName + "`")
 }
 
 

@@ -1,4 +1,4 @@
-package versionControl
+package versionControls
 
 const(
 	Azure = "azure"

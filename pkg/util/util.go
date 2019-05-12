@@ -3,6 +3,7 @@ package util
 import (
 	"errors"
 	"github.com/manifoldco/promptui"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -62,8 +63,8 @@ func PromptSelect(label string, items []string) (string, error) {
 	return result, err
 }
 
-func CreateFile(projectFolder string, fileName string, content string) error {
-	fileName = filepath.Join(projectFolder, fileName)
+func CreateFile(folder string, fileName string, content string) error {
+	fileName = filepath.Join(folder, fileName)
 	file, err := os.Create(fileName)
 	if err != nil {
 		return  err
@@ -96,4 +97,21 @@ func GetCurrentFolderName() (string, error){
 
 func StripNewLine(input string) string {
 	return strings.Replace(input, "\n", "", -1)
+}
+
+func HandleFatalError(err error) {
+	if err != nil {
+		exitError, isExitError := err.(*exec.ExitError)
+		if isExitError {
+			log.Print(string(exitError.Stderr))
+		}
+		log.Fatal(err)
+	}
+}
+
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil { return true, nil }
+	if os.IsNotExist(err) { return false, nil }
+	return true, err
 }
