@@ -1,26 +1,24 @@
 package docker
 
 import (
-	"errors"
 	"github.com/ryannel/hippo/pkg/util"
 	"log"
+	"strings"
 )
 
-func Build(registryUrl string, imageName string, commit string) error {
-	if registryUrl == "" {
-		return errors.New("no docker registry provided. Run `hippo setup docker` to enable repository handling")
+func Build(name string, tag string) error {
+	tag = generateTag(name, tag)
+	if tag != "" {
+		tag = "-t " + tag
 	}
 
-	command := `docker build --pull --shm-size 256m --memory=3g --memory-swap=-1 -t ` +registryUrl+ `/` +imageName+ `:` +commit+ ` .`
-
+	command := strings.ToLower(`docker build --pull --shm-size 256m --memory=3g --memory-swap=-1 ` + tag + ` .`)
 	log.Print("Building Docker image: " + command)
-	_, err := util.ExecStringCommand(command)
-
-	return err
+	return util.ExecCommandStreamingOut(command)
 }
 
-func Tag(registryUrl string, commit string, tag string) error {
-	command := "docker tag "+registryUrl+"/"+commit+" "+registryUrl+":"+ tag
+func Tag(sourceImage string, targetImage string, tag string) error {
+	command := strings.ToLower("docker tag "+sourceImage+ " " +targetImage+":"+ tag)
 	log.Print("Tagging image with tag (" + tag + "): " + command)
 	_, err := util.ExecStringCommand(command)
 
@@ -48,4 +46,17 @@ func Login(username string, password string, registryUrl string) error {
 	_, err := util.ExecStringCommand(command)
 
 	return err
+}
+
+func generateTag(name string, tag string) string {
+	var arg string
+	if name != "" {
+		arg = name
+	}
+
+	if tag != "" {
+		arg = arg + ":" + tag
+	}
+
+	return arg
 }

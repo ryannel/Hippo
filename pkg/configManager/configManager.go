@@ -40,6 +40,10 @@ func (manager configManager) SetLanguage(language string) error {
 	return manager.writeToConfig("Language", language)
 }
 
+func (manager configManager) SetDockerRegistryUrl(language string) error {
+	return manager.writeToConfig("DockerRegistryUrl", language)
+}
+
 func (manager configManager) writeToConfig(key string, value string) error {
 	file, err := os.OpenFile(manager.configPath, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {

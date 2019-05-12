@@ -4,6 +4,7 @@ import (
 	"errors"
 	languageEnum "github.com/ryannel/hippo/pkg/enum/languages"
 	"github.com/ryannel/hippo/pkg/util"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -27,7 +28,7 @@ func New(projectName string, projectFolderPath string, language string) (scaffol
 }
 
 type languageScaffold interface {
-	CreateProjectTemplate(projectFolderPath string) error
+	CreateProjectTemplate(projectFolderPath string, projectName string) error
 	CreateGitIgnore(folder string) error
 	CreateDockerFile(folder string, projectName string) error
 	CreateDockerIgnore(folder string) error
@@ -43,26 +44,32 @@ type scaffold struct {
 }
 
 func (scaffold scaffold) CreateProjectTemplate() error {
-	return scaffold.languageScaffold.CreateProjectTemplate(scaffold.projectFolderPath)
+	log.Print("Creating project template")
+	return scaffold.languageScaffold.CreateProjectTemplate(scaffold.projectFolderPath, scaffold.projectName)
 }
 
 func (scaffold scaffold) CreateGitIgnore() error {
+	log.Print("Creating: .gitignore")
 	return scaffold.languageScaffold.CreateGitIgnore(scaffold.projectFolderPath)
 }
 
 func (scaffold scaffold) CreateReadme() error {
+	log.Print("Creating: Readme.md")
 	return util.CreateFile(scaffold.projectFolderPath, "README.md", "#" + scaffold.projectName)
 }
 
 func (scaffold scaffold) CreateEditorConfig() error {
+	log.Print("Creating: .editorconfig")
 	return util.CreateFile(scaffold.projectFolderPath, ".editorconfig", "")
 }
 
 func (scaffold scaffold) CreateDockerFile() error {
+	log.Print("Creating: Dockerfile")
 	return scaffold.languageScaffold.CreateDockerFile(scaffold.projectFolderPath, scaffold.projectName)
 }
 
 func (scaffold scaffold) CreateDockerIgnore() error {
+	log.Print("Creating: .dockerignore")
 	return scaffold.languageScaffold.CreateDockerIgnore(scaffold.projectFolderPath)
 }
 
@@ -94,6 +101,7 @@ func selectLanguageScaffold(language string) (languageScaffold, error) {
 }
 
 func CreateProjectFolder(projectName string) string {
+	log.Print("Creating Project folder: " + projectName)
 	workingDirectory, err := os.Getwd()
 	util.HandleFatalError(err)
 

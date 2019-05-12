@@ -55,12 +55,12 @@ Some usage examples.
 
 		setupWizard(projectFolderPath)
 
-		log.Print(componentEnum.Docker + " component has been created setup")
+		log.Print(componentEnum.Docker + " component has been setup")
 	},
 }
 
 func setupDocker(projectFolderPath string) {
-	confManager, err := configManager.New("config.yaml")
+	confManager, err := configManager.New("hippo.yaml")
 	util.HandleFatalError(err)
 
 	config, err := confManager.ParseConfig()
@@ -73,6 +73,12 @@ func setupDocker(projectFolderPath string) {
 	util.HandleFatalError(err)
 
 	err = scaffold.CreateDockerIgnore()
+	util.HandleFatalError(err)
+
+	dockerRegistryUrl, err := util.PromptString("Docker Registry Url")
+	util.HandleFatalError(err)
+
+	err = confManager.SetDockerRegistryUrl(dockerRegistryUrl)
 	util.HandleFatalError(err)
 }
 

@@ -36,54 +36,35 @@ Some usage examples.
 func build() {
 	config := getConfig()
 
+	var commitTag string
+	var branchTag string
 	vcs, err := versionControl.New()
-	util.HandleFatalError(err)
+	if err == nil {
+		commitTag, _ = vcs.GetCommit()
+		branchTag, _ = vcs.GetBranchReplaceSlash()
+	}
 
+	registryUrl := config.DockerRegistryUrl
 	imageName := config.ProjectName
-	commit := getCommit(vcs)
-	registryUrl := getRegistryUrl(config)
+	name := registryUrl+"/"+imageName
 
-	err = docker.Build(registryUrl, imageName, commit)
+	err = docker.Build(name, commitTag)
 	util.HandleFatalError(err)
 
-	err = docker.Tag(registryUrl, commit, getTag(vcs))
+	err = docker.Tag(name+"/"+commitTag, name, branchTag)
 	util.HandleFatalError(err)
 
 	log.Print("Build Completed.")
 }
 
-func getCommit(vcs versionControl.VersionControl) string {
-	commit, err := vcs.GetCommit()
-	util.HandleFatalError(err)
-
-	return commit
-}
-
-func getRegistryUrl(config configManager.Config) string {
-	registryUrl := config.DockerRegistryUrl
-	if registryUrl == "" {
-		err := errors.New("`DockerRegistryUrl` not configured. Run `hippo setup docker` to enable repository handling")
-		util.HandleFatalError(err)
-	}
-
-	return registryUrl
-}
-
 func getConfig() configManager.Config {
-	confManager, err := configManager.New("congfig.yaml")
+	confManager, err := configManager.New("hippo.yaml")
 	util.HandleFatalError(err)
 
 	config, err := confManager.ParseConfig()
 	util.HandleFatalError(err)
 
 	return config
-}
-
-func getTag(vcs versionControl.VersionControl) string {
-	tag, err := vcs.GetBranchReplaceSlash()
-	util.HandleFatalError(err)
-
-	return tag
 }
 
 

@@ -3,16 +3,24 @@ package scaffoldManager
 import (
 	"github.com/ryannel/hippo/pkg/template"
 	"github.com/ryannel/hippo/pkg/util"
+	"log"
+	"os/exec"
 	"strings"
 )
 
 type goLangScaffold struct {}
 
-func (scaffold goLangScaffold) CreateProjectTemplate(projectFolderPath string) error {
+func (scaffold goLangScaffold) CreateProjectTemplate(projectFolderPath string, projectName string) error {
 	err := scaffold.createMain(projectFolderPath)
 	if err != nil {
 	    return err
 	}
+
+	err = scaffold.createGoModule(projectFolderPath, projectName)
+	if err != nil {
+		return err
+	}
+
 
 	return nil
 }
@@ -49,13 +57,23 @@ func (goLangScaffold) CreateDockerFile(folder string, projectName string) error 
 	return util.CreateFile(folder, "Dockerfile", dockerFile)
 }
 
-//func (goLangScaffold) createGoModule(projectFolderPath string) error {
-//	command := "go mod init "
-//	log.Print("Init Go Module: " + command)
-//
-//	_, err := util.ExecStringCommand(command)
-//	return err
-//}
+func (goLangScaffold) createGoModule(projectFolderPath string, projectName string) error {
+	cmd := exec.Command("go", "mod", "init")
+	cmd.Dir = projectFolderPath
+	_, err := cmd.Output()
+
+	if err == nil {
+		log.Print("Init Go Module: go mod init")
+		return nil
+	}
+
+	log.Print("Init Go Module: go mod init " + projectName)
+	cmd = exec.Command("go", "mod", "init", projectName)
+	cmd.Dir = projectFolderPath
+	_, err = cmd.Output()
+
+	return err
+}
 
 func (goLangScaffold) CreateDockerIgnore(folder string) error{
 	return util.CreateFile(folder,".dockerignore", `.git

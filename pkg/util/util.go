@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bufio"
 	"errors"
 	"github.com/manifoldco/promptui"
 	"log"
@@ -83,6 +84,33 @@ func ExecStringCommand(command string) (string, error) {
 	args := strings.Fields(command)
 	result, err := exec.Command(args[0], args[1:]...).Output()
 	return string(result), err
+}
+
+func ExecCommandStreamingOut(command string) error {
+	args := strings.Fields(command)
+	cmd := exec.Command(args[0], args[1:]...)
+
+	stdOut, _ := cmd.StdoutPipe()
+	stderr, _ := cmd.StderrPipe()
+
+	err := cmd.Start()
+	if err != nil {
+		return  err
+	}
+
+	scanner := bufio.NewScanner(stdOut)
+	for scanner.Scan() {
+		m := scanner.Text()
+		log.Print(m)
+	}
+
+	scanner = bufio.NewScanner(stderr)
+	for scanner.Scan() {
+		errorText := scanner.Text()
+		return errors.New(errorText)
+	}
+
+	return nil
 }
 
 func GetCurrentFolderName() (string, error){

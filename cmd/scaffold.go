@@ -77,6 +77,7 @@ func scaffoldProject (projectName string, language string) {
 	util.HandleFatalError(err)
 
 	log.Print("Project has been created at `./" + projectName + "`")
+	log.Print("Please initialise your version control in the project folder")
 }
 
 
