@@ -181,12 +181,12 @@ RUN go tool cover -html=.testCoverage.txt -o coverage.html
 
 RUN go tool cover -func=.testCoverage.txt
 
-RUN if test -d ./main.go; then \
+RUN if test -f ./main.go; then \
   echo "building main.go" \
   GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /release/{projectname} main.go; \
 fi
 
-RUN if test -f /build/cmd; then \
+RUN if test -d /build/cmd; then \
   for file in $(find /build/cmd -name *.go); \
     do echo "building ${file}"; \
     GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /release/$(basename $(dirname ${file})) ${file}; \
