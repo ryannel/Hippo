@@ -25,22 +25,15 @@ func Tag(sourceImage string, sourceTag string, targetImage string, targetTag str
 	return err
 }
 
-func Push(registryUrl string, imageName string, tag string, commit string) error {
-	command := "docker push " + registryUrl + "/" + imageName + ":" + commit
-	log.Print("Pushing docker commit (" + commit + "): " + command)
+func Push(registryUrl string, name string, tag string) error {
+	tag = generateTag(name, tag)
+	command := "docker push " + registryUrl + "/" + tag
+	log.Print("Pushing docker image: " + command)
 	_, err := util.ExecStringCommand(command)
-	if err != nil {
-		return err
-	}
-
-	command = "docker push " + registryUrl + "/" + imageName + ":" + commit
-	log.Print("Pushing docker tag (" + commit + "): " + tag)
-	_, err = util.ExecStringCommand(command)
-
 	return err
 }
 
-func Login(username string, password string, registryUrl string) error {
+func Login(registryUrl string, username string, password string) error {
 	command := "docker login -u " + username + " -p " + password + " " + registryUrl
 	log.Print("Logging into docker registry: " + command)
 	_, err := util.ExecStringCommand(command)

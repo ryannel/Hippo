@@ -12,7 +12,7 @@ import (
 func New(configPath string) (configManager, error) {
 	exists, err := util.PathExists(configPath)
 	if err != nil || !exists {
-		return configManager{}, errors.New("failed to load config file")
+		return configManager{}, errors.New("hippo.yaml config file not found. run `hippo configure` to generate one")
 	}
 
 	if err != nil {
@@ -26,6 +26,8 @@ type Config struct {
 	ProjectName string `yaml:"ProjectName"`
 	Language string `yaml:"Language"`
 	DockerRegistryUrl string `yaml:"DockerRegistryUrl"`
+	DockerRegistryUser string `yaml:"DockerRegistryUser"`
+	DockerRegistryPassword string `yaml:"DockerRegistryPassword"`
 }
 
 type configManager struct {
@@ -42,6 +44,14 @@ func (manager configManager) SetLanguage(language string) error {
 
 func (manager configManager) SetDockerRegistryUrl(language string) error {
 	return manager.writeToConfig("DockerRegistryUrl", language)
+}
+
+func (manager configManager) SetDockerRegistryUser(dockerRegistryUser string) error {
+	return manager.writeToConfig("DockerRegistryUser", dockerRegistryUser)
+}
+
+func (manager configManager) SetDockerRegistryPassword(dockerRegistryPassword string) error {
+	return manager.writeToConfig("DockerRegistryPassword", dockerRegistryPassword)
 }
 
 func (manager configManager) writeToConfig(key string, value string) error {
@@ -80,4 +90,13 @@ func CreateConfigFile(path string) error  {
 	configPath := filepath.Join(path, "hippo.yaml")
 	_, err := os.Create(configPath)
 	return err
+}
+
+func GetConfig(configPath string) (Config, error) {
+	confManager, err := New(configPath)
+	if err != nil {
+		return Config{}, err
+	}
+
+	return confManager.ParseConfig()
 }

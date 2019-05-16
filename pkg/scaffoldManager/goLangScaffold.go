@@ -21,7 +21,6 @@ func (scaffold goLangScaffold) CreateProjectTemplate(projectFolderPath string, p
 		return err
 	}
 
-
 	return nil
 }
 

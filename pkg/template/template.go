@@ -143,7 +143,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
           timeoutSeconds: 5
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         image: {dockerRegistryUrl}/{projectname}:\${COMMIT}
         ports:
         - containerPort: 80
@@ -181,7 +181,7 @@ RUN go tool cover -html=.testCoverage.txt -o coverage.html
 
 RUN go tool cover -func=.testCoverage.txt
 
-RUN if test -f ./main.go; then \
+RUN if test -d ./main.go; then \
   echo "building main.go" \
   GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /release/{projectname} main.go; \
 fi

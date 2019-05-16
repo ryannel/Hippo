@@ -80,6 +80,18 @@ func setupDocker(projectFolderPath string) {
 
 	err = confManager.SetDockerRegistryUrl(dockerRegistryUrl)
 	util.HandleFatalError(err)
+
+	dockerRegistryUser, err := util.PromptString("Docker Registry Username")
+	util.HandleFatalError(err)
+
+	err = confManager.SetDockerRegistryUser(dockerRegistryUser)
+	util.HandleFatalError(err)
+
+	dockerRegistryPassword, err := util.PromptPassword("Docker Registry Password")
+	util.HandleFatalError(err)
+
+	err = confManager.SetDockerRegistryPassword(dockerRegistryPassword)
+	util.HandleFatalError(err)
 }
 
 func setupWizard(projectFolderPath string) {
