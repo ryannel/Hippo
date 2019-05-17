@@ -85,13 +85,7 @@ func setupDocker(projectFolderPath string) {
 
 	registryDomain := docker.GetRegistryDomain(dockerRegistry)
 
-	err = confManager.SetDockerRegistryDomain(registryDomain)
-	util.HandleFatalError(err)
-
 	registryNamespace, err := util.PromptString("Docker Registry Namespace")
-	util.HandleFatalError(err)
-
-	err = confManager.SetDockerRegistryNamespace(registryNamespace)
 	util.HandleFatalError(err)
 
 	err = confManager.SetDockerRegistryUrl(registryDomain + "/" + registryNamespace)

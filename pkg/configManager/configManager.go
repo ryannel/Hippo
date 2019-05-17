@@ -58,8 +58,8 @@ func (manager *configManager) SetLanguage(language string) error {
 	return manager.saveConfig()
 }
 
-func (manager *configManager) SetDockerRegistry(registryDomain string) error {
-	manager.config.Docker.RegistryDomain = registryDomain
+func (manager *configManager) SetDockerRegistry(registryName string) error {
+	manager.config.Docker.RegistryName = registryName
 	return manager.saveConfig()
 }
 
