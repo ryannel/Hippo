@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/pkg/docker"
 	componentEnum "github.com/ryannel/hippo/pkg/enum/components"
+	"github.com/ryannel/hippo/pkg/enum/dockerRegistries"
 	"github.com/ryannel/hippo/pkg/scaffoldManager"
 	"github.com/ryannel/hippo/pkg/util"
 	"github.com/spf13/cobra"
@@ -38,7 +40,7 @@ Some usage examples.
 
 		setupDocker(projectFolderPath)
 
-		log.Print(componentEnum.Docker + " component has been created setup")
+		log.Print(componentEnum.Docker + " component has been created")
 	},
 }
 
@@ -54,17 +56,13 @@ Some usage examples.
 		util.HandleFatalError(err)
 
 		setupWizard(projectFolderPath)
-
-		log.Print(componentEnum.Docker + " component has been setup")
 	},
 }
 
 func setupDocker(projectFolderPath string) {
 	confManager, err := configManager.New("hippo.yaml")
 	util.HandleFatalError(err)
-
-	config, err := confManager.ParseConfig()
-	util.HandleFatalError(err)
+	config := confManager.GetConfig()
 
 	scaffold, err := scaffoldManager.New(config.ProjectName, projectFolderPath, config.Language)
 	util.HandleFatalError(err)
@@ -75,10 +73,28 @@ func setupDocker(projectFolderPath string) {
 	err = scaffold.CreateDockerIgnore()
 	util.HandleFatalError(err)
 
-	dockerRegistryUrl, err := util.PromptString("Docker Registry Url")
+	dockerRegistry, err := util.PromptSelect("Docker Registry", []string {dockerRegistries.QuayIo, "None"})
 	util.HandleFatalError(err)
 
-	err = confManager.SetDockerRegistryUrl(dockerRegistryUrl)
+	if dockerRegistry == "None" {
+		return
+	}
+
+	err = confManager.SetDockerRegistry(dockerRegistry)
+	util.HandleFatalError(err)
+
+	registryDomain := docker.GetRegistryDomain(dockerRegistry)
+
+	err = confManager.SetDockerRegistryDomain(registryDomain)
+	util.HandleFatalError(err)
+
+	registryNamespace, err := util.PromptString("Docker Registry Namespace")
+	util.HandleFatalError(err)
+
+	err = confManager.SetDockerRegistryNamespace(registryNamespace)
+	util.HandleFatalError(err)
+
+	err = confManager.SetDockerRegistryUrl(registryDomain + "/" + registryNamespace)
 	util.HandleFatalError(err)
 
 	dockerRegistryUser, err := util.PromptString("Docker Registry Username")
