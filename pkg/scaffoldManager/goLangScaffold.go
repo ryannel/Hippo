@@ -64,7 +64,7 @@ func (goLangScaffold) createGoModule(projectFolderPath string, projectName strin
 		return nil
 	}
 
-	log.Print("Init Go Module: go mod init " + projectName)
+	log.Print("GoPath not found. Creating Go module under project name: go mod init " + projectName)
 	cmd = exec.Command("go", "mod", "init", projectName)
 	cmd.Dir = projectFolderPath
 	_, err = cmd.Output()

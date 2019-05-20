@@ -6,45 +6,46 @@ func PostgresDeployYaml(POSTGRES_DB string, POSTGRES_USER string, POSTGRES_PASSW
 	template := `apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-	name: postgresql
+  name: postgresql
 spec:
-	replicas: 1
-	template:
-		metadata:
-			labels:
-				app: postgresql
-		spec:
-			containers:
-				- name: postgres
-				image: postgres:10.4
-				imagePullPolicy: "IfNotPresent"
-				resources:
-					requests:
-						memory: 200Mi
-					limits:
-						memory: 300Mi
-				ports:
-					- containerPort: 5432
-				env:
-					- name: POSTGRES_DB
-						value: {dbName}
-					- name: POSTGRES_USER
-						value: {user}
-					- name: POSTGRES_PASSWORD
-						value: {password}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:10.4
+          imagePullPolicy: "IfNotPresent"
+          resources:
+            requests:
+              memory: 200Mi
+            limits:
+              memory: 300Mi
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: {dbName}
+            - name: POSTGRES_USER
+              value: {user}
+            - name: POSTGRES_PASSWORD
+              value: {password}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-	name: postgresql
-	labels:
-		app: postgresql
+  name: postgresql
+  labels:
+    app: postgresql
 spec:
-	ports:
-		- port: 5432
-	selector:
-		app: postgresql
-	type: LoadBalancer`
+  ports:
+   - port: 5432
+  selector:
+   app: postgresql
+  type: LoadBalancer
+`
 
 	template = strings.Replace(template, "{dbName}", POSTGRES_DB, -1)
 	template = strings.Replace(template, "{user}", POSTGRES_USER, -1)

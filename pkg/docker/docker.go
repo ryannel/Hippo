@@ -18,7 +18,10 @@ func Build(name string, tag string) error {
 }
 
 func Tag(sourceImage string, sourceTag string, targetImage string, targetTag string) error {
-	command := strings.ToLower("docker tag "+sourceImage+ ":" + sourceTag+ " " +targetImage+":"+ targetTag)
+	sourceTag = generateTag(sourceImage, sourceTag)
+	targetTag = generateTag(targetImage, targetTag)
+
+	command := strings.ToLower("docker tag " +sourceImage+ " " + targetTag)
 	log.Print("Tagging image : " + command)
 	_, err := util.ExecStringCommand(command)
 
@@ -27,25 +30,22 @@ func Tag(sourceImage string, sourceTag string, targetImage string, targetTag str
 
 func Push(registryUrl string, name string, tag string) error {
 	tag = generateTag(name, tag)
-	command := "docker push " + registryUrl + "/" + tag
+	command := strings.ToLower("docker push " + registryUrl + "/" + tag)
 	log.Print("Pushing docker image: " + command)
-	_, err := util.ExecStringCommand(command)
+	err := util.ExecCommandStreamingOut(command)
 	return err
 }
 
 func Login(registryUrl string, username string, password string) error {
 	command := "docker login -u " + username + " -p " + password + " " + registryUrl
-	log.Print("Logging into docker registry: " + command)
+	log.Print("Logging into docker registry: docker login -u " + username + " -p <password> " + registryUrl)
 	_, err := util.ExecStringCommand(command)
 
 	return err
 }
 
 func generateTag(name string, tag string) string {
-	var arg string
-	if name != "" {
-		arg = name
-	}
+	arg := name
 
 	if tag != "" {
 		arg = arg + ":" + tag

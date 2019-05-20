@@ -2,78 +2,98 @@ package configManager
 
 import (
 	"errors"
-	"github.com/ryannel/hippo/pkg/util"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/yaml.v2"
 )
 
 func New(configPath string) (configManager, error) {
-	exists, err := util.PathExists(configPath)
-	if err != nil || !exists {
-		return configManager{}, errors.New("hippo.yaml config file not found. run `hippo configure` to generate one")
-	}
-
+	config, err := parseConfig(configPath)
 	if err != nil {
 		return configManager{}, err
 	}
 
-	return configManager{configPath}, nil
+	return configManager{configPath, config}, nil
 }
 
 type Config struct {
-	ProjectName string `yaml:"ProjectName"`
-	Language string `yaml:"Language"`
-	DockerRegistryUrl string `yaml:"DockerRegistryUrl"`
-	DockerRegistryUser string `yaml:"DockerRegistryUser"`
-	DockerRegistryPassword string `yaml:"DockerRegistryPassword"`
-
+	ProjectName string `yaml:"ProjectName,omitempty"`
+	Language    string `yaml:"Language,omitempty"`
+	Docker      struct {
+		RegistryName     string `yaml:"RegistryName,omitempty"`
+		RegistryDomain   string `yaml:"RegistryDomain,omitempty"`
+		Namespace        string `yaml:"NameSpace,omitempty"`
+		RegistryUrl      string `yaml:"RegistryUrl,omitempty"`
+		RegistryUser     string `yaml:"RegistryUser,omitempty"`
+		RegistryPassword string `yaml:"RegistryPassword,omitempty"`
+	} `yaml:"Docker,omitempty"`
 	KubernetesContexts map[string]string `yaml:"KubernetesContexts"`
 }
 
 type configManager struct {
 	configPath string
+	config     Config
 }
 
-func (manager configManager) SetProjectName(projectName string) error {
-	return manager.writeToConfig("ProjectName", projectName)
+func (manager *configManager) GetConfig() Config {
+	return manager.config
 }
 
-func (manager configManager) SetLanguage(language string) error {
-	return manager.writeToConfig("Language", language)
-}
-
-func (manager configManager) SetDockerRegistryUrl(language string) error {
-	return manager.writeToConfig("DockerRegistryUrl", language)
-}
-
-func (manager configManager) SetDockerRegistryUser(dockerRegistryUser string) error {
-	return manager.writeToConfig("DockerRegistryUser", dockerRegistryUser)
-}
-
-func (manager configManager) SetDockerRegistryPassword(dockerRegistryPassword string) error {
-	return manager.writeToConfig("DockerRegistryPassword", dockerRegistryPassword)
-}
-
-func (manager configManager) writeToConfig(key string, value string) error {
-	file, err := os.OpenFile(manager.configPath, os.O_APPEND|os.O_WRONLY, 0644)
+func (manager *configManager) saveConfig() error {
+	configYaml, err := yaml.Marshal(manager.config)
 	if err != nil {
 		return err
 	}
 
-	_, err = file.WriteString(key + ": " + value + "\n")
-	if err != nil {
-		return err
-	}
-
-	return file.Close()
+	return ioutil.WriteFile(manager.configPath, configYaml, 0644)
 }
 
-func (manager configManager) ParseConfig() (Config, error) {
+func (manager *configManager) SetProjectName(projectName string) error {
+	manager.config.ProjectName = projectName
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetLanguage(language string) error {
+	manager.config.Language = language
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetDockerRegistry(registryName string) error {
+	manager.config.Docker.RegistryName = registryName
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetDockerRegistryDomain(registryDomain string) error {
+	manager.config.Docker.RegistryDomain = registryDomain
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetDockerRegistryUser(dockerRegistryUser string) error {
+	manager.config.Docker.RegistryUser = dockerRegistryUser
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetDockerRegistryPassword(dockerRegistryPassword string) error {
+	manager.config.Docker.RegistryPassword = dockerRegistryPassword
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetDockerRegistryNamespace(namespace string) error {
+	manager.config.Docker.Namespace = namespace
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetDockerRegistryUrl(registryUrl string) error {
+	manager.config.Docker.RegistryUrl = registryUrl
+	return manager.saveConfig()
+}
+
+func parseConfig(configPath string) (Config, error) {
 	var config Config
 
-	configYaml, err := ioutil.ReadFile(manager.configPath)
+	configYaml, err := ioutil.ReadFile(configPath)
 	if os.IsNotExist(err) {
 		return config, errors.New("hippo.yaml config file not found. run `hippo configure` to generate one")
 	} else if err != nil {
@@ -88,17 +108,12 @@ func (manager configManager) ParseConfig() (Config, error) {
 	return config, err
 }
 
-func CreateConfigFile(path string) error  {
+func Create(path string) (configManager, error) {
 	configPath := filepath.Join(path, "hippo.yaml")
 	_, err := os.Create(configPath)
-	return err
-}
-
-func GetConfig(configPath string) (Config, error) {
-	confManager, err := New(configPath)
 	if err != nil {
-		return Config{}, err
+		return configManager{}, err
 	}
 
-	return confManager.ParseConfig()
+	return New(configPath)
 }

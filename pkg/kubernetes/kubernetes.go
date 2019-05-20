@@ -2,27 +2,28 @@ package kubernetes
 
 import (
 	"errors"
-	"github.com/ryannel/hippo/pkg/environment"
 	"github.com/ryannel/hippo/pkg/util"
+	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
 )
 
-func New(envName string, config environment.EnvConfig) (Kubernetes, error) {
-	command, err := getKubeContext(envName, config)
+func New(context string) (Kubernetes, error) {
+	command, err := getKubectlCommand()
 	if err != nil {
 		return Kubernetes{}, err
 	}
 
-	return Kubernetes{command}, nil
+	return Kubernetes{command + " " + context}, nil
 }
 
 type Kubernetes struct {
-	contextCommand string
+	command string
 }
 
 func (k8 *Kubernetes) Deploy(deployYamlPath string) error {
-	command := k8.contextCommand + " apply --record=false -f " + deployYamlPath
+	command := k8.command + " apply --record=false -f " + deployYamlPath
 	log.Print("Deploying pod: " + command)
 
 	result, err := util.ExecStringCommand(command)
@@ -36,7 +37,7 @@ func (k8 *Kubernetes) Deploy(deployYamlPath string) error {
 }
 
 func (k8 *Kubernetes) GetPodName(appName string) (string, error) {
-	command := k8.contextCommand + ` get pods --selector app=` + appName + ` --output jsonpath={.items..metadata.name}`
+	command := k8.command + ` get pods --selector app=` + appName + ` --output jsonpath={.items..metadata.name}`
 	log.Print("Getting pod name: " + command)
 
 	podName, err := util.ExecStringCommand(command)
@@ -45,6 +46,38 @@ func (k8 *Kubernetes) GetPodName(appName string) (string, error) {
 	}
 
 	return string(podName), nil
+}
+
+func (k8 *Kubernetes) Apply(deployYaml string) error {
+	file, err := createTmpFile(deployYaml)
+	if err != nil {
+		return err
+	}
+
+	command := k8.command + " apply -f " + file.Name()
+	log.Print("Applying Yaml file: " + command)
+
+	result, err := util.ExecStringCommand(command)
+	log.Print(result)
+
+	_ = file.Close()
+	_ = os.Remove(file.Name())
+
+	return err
+}
+
+func createTmpFile(deployYaml string) (*os.File, error){
+	file, err := ioutil.TempFile("", "psqlKubeDeploy")
+	if err != nil {
+		return file, err
+	}
+
+	_, err = file.WriteString(deployYaml)
+	if err != nil {
+		return file, err
+	}
+
+	return file, nil
 }
 
 func getKubectlCommand() (string, error){
@@ -61,26 +94,15 @@ func getKubectlCommand() (string, error){
 	return "", errors.New("kubectl command not found")
 }
 
-func getContextArgs(envName string, config environment.EnvConfig) (string, error) {
-	context := config.Environments[envName]
-	if len(context) == 0 {
-		return context, errors.New("env name (" + envName + ") not found in hippo.yaml Environments list" )
-	}
-	return context, nil
-}
+func GetContext(contextName string, contexts map[string]string) (string, error){
+	var err error = nil
 
-func getKubeContext(envName string, config environment.EnvConfig) (string, error){
-	kubectl, err := getKubectlCommand()
-	if err != nil {
-	    return "", err
+	kubeContext := contexts[contextName]
+	if len(kubeContext) == 0 {
+		err = errors.New("env name (" + contextName + ") not found in hippo.yaml KubernetesContext list" )
 	}
 
-	contextArgs, err := getContextArgs(envName, config)
-	if err != nil {
-	    return "", err
-	}
-
-	return kubectl + " " + contextArgs, nil
+	return kubeContext, err
 }
 
 

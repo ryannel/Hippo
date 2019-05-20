@@ -67,8 +67,9 @@ func dockerBuild() {
 	err := dockerFileExists()
 	util.HandleFatalError(err)
 
-	config, err := configManager.GetConfig("hippo.yaml")
+	confManager, err := configManager.New("hippo.yaml")
 	util.HandleFatalError(err)
+	config := confManager.GetConfig()
 
 	var commitTag string
 	var branchTag string
@@ -78,13 +79,15 @@ func dockerBuild() {
 		branchTag, _ = vcs.GetBranchReplaceSlash()
 	}
 
-	imageName := generateDockerImageName(config.DockerRegistryUrl, config.ProjectName)
+	imageName := generateDockerImageName(config.Docker.RegistryUrl, config.ProjectName)
 
 	err = docker.Build(imageName, commitTag)
 	util.HandleFatalError(err)
 
-	err = docker.Tag(imageName, commitTag, imageName, branchTag)
-	util.HandleFatalError(err)
+	if branchTag != "" {
+		err = docker.Tag(imageName, commitTag, imageName, branchTag)
+		util.HandleFatalError(err)
+	}
 
 	if branchTag == "master" {
 		err = docker.Tag(imageName, commitTag, imageName, "latest")
@@ -98,8 +101,9 @@ func dockerPush() {
 	err := dockerFileExists()
 	util.HandleFatalError(err)
 
-	config, err := configManager.GetConfig("hippo.yaml")
+	confManager, err := configManager.New("hippo.yaml")
 	util.HandleFatalError(err)
+	config := confManager.GetConfig()
 
 	var commitTag string
 	var branchTag string
@@ -111,17 +115,17 @@ func dockerPush() {
 
 	imageName := config.ProjectName
 
-	err = docker.Login(config.DockerRegistryUrl, config.DockerRegistryUser, config.DockerRegistryPassword)
+	err = docker.Login(config.Docker.RegistryUrl, config.Docker.RegistryUser, config.Docker.RegistryPassword)
 	util.HandleFatalError(err)
 
-	err = docker.Push(config.DockerRegistryUrl, imageName, commitTag)
+	err = docker.Push(config.Docker.RegistryUrl, imageName, commitTag)
 	util.HandleFatalError(err)
 
-	err = docker.Push(config.DockerRegistryUrl, imageName, branchTag)
+	err = docker.Push(config.Docker.RegistryUrl, imageName, branchTag)
 	util.HandleFatalError(err)
 
 	if branchTag == "master" {
-		err = docker.Push(config.DockerRegistryUrl, imageName, "latest")
+		err = docker.Push(config.Docker.RegistryUrl, imageName, "latest")
 		util.HandleFatalError(err)
 	}
 

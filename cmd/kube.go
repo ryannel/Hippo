@@ -2,14 +2,9 @@ package cmd
 
 import (
 	"errors"
-	"github.com/ryannel/hippo/pkg/configManager"
-	"github.com/ryannel/hippo/pkg/environment"
-	"github.com/ryannel/hippo/pkg/kubernetes"
 	"github.com/ryannel/hippo/pkg/util"
 	"github.com/spf13/cobra"
 	"log"
-	"os"
-	"path/filepath"
 )
 
 func init() {
@@ -55,27 +50,28 @@ Some usage examples.
 }
 
 func kubeDeploy(envName string) error {
-	projectFolder, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	deployYamlPath := filepath.Join(projectFolder, "deployment_files", "deploy.yaml")
-
-	exists, err := util.PathExists(deployYamlPath)
-	if !exists || err != nil {
-		err = errors.New("deployment files do not exist. run `hippo setup kubernetes` to create them: " + deployYamlPath)
-		util.HandleFatalError(err)
-	}
-
-	config, err := configManager.GetConfig("hippo.yaml")
-
-	k8, err := kubernetes.New(envName)
-	if err != nil {
-		return err
-	}
-
-	return k8.Deploy(deployYamlPath)
+	//projectFolder, err := os.Getwd()
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//deployYamlPath := filepath.Join(projectFolder, "deployment_files", "deploy.yaml")
+	//
+	//exists, err := util.PathExists(deployYamlPath)
+	//if !exists || err != nil {
+	//	err = errors.New("deployment files do not exist. run `hippo setup kubernetes` to create them: " + deployYamlPath)
+	//	util.HandleFatalError(err)
+	//}
+	//
+	//config, err := configManager.GetConfig("hippo.yaml")
+	//
+	//k8, err := kubernetes.New(envName)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//return k8.Deploy(deployYamlPath)
+	return nil
 }
 
 

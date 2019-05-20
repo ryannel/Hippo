@@ -15,7 +15,7 @@ func New(projectName string, projectFolderPath string, language string) (scaffol
 		return scaffold{}, errors.New("unable to access project folder: " + projectFolderPath)
 	}
 
-	languageScaffold, err :=  selectLanguageScaffold(language)
+	languageScaffold, err := selectLanguageScaffold(language)
 	if err != nil {
 		return scaffold{}, err
 	}
@@ -24,6 +24,7 @@ func New(projectName string, projectFolderPath string, language string) (scaffol
 		projectFolderPath: projectFolderPath,
 		projectName:       projectName,
 		languageScaffold:  languageScaffold,
+		language:          language,
 	}, nil
 }
 
@@ -44,7 +45,7 @@ type scaffold struct {
 }
 
 func (scaffold scaffold) CreateProjectTemplate() error {
-	log.Print("Creating project template")
+	log.Print("Creating " + scaffold.language + " project template")
 	return scaffold.languageScaffold.CreateProjectTemplate(scaffold.projectFolderPath, scaffold.projectName)
 }
 
@@ -55,7 +56,7 @@ func (scaffold scaffold) CreateGitIgnore() error {
 
 func (scaffold scaffold) CreateReadme() error {
 	log.Print("Creating: Readme.md")
-	return util.CreateFile(scaffold.projectFolderPath, "README.md", "#" + scaffold.projectName)
+	return util.CreateFile(scaffold.projectFolderPath, "README.md", "#"+scaffold.projectName)
 }
 
 func (scaffold scaffold) CreateEditorConfig() error {
@@ -93,21 +94,22 @@ func selectLanguageScaffold(language string) (languageScaffold, error) {
 	var scaffold languageScaffold
 
 	switch language {
-	case languageEnum.GoLang:  scaffold = goLangScaffold{}
-	default: return goLangScaffold{}, errors.New("Selected Language not supported, please see configuration options in README.md: " + language)
+	case languageEnum.GoLang:
+		scaffold = goLangScaffold{}
+	default:
+		return goLangScaffold{}, errors.New("Selected Language not supported, please see configuration options in README.md: " + language)
 	}
 
 	return scaffold, nil
 }
 
-func CreateProjectFolder(projectName string) string {
+func CreateProjectFolder(projectName string) (string, error) {
 	log.Print("Creating Project folder: " + projectName)
 	workingDirectory, err := os.Getwd()
 	util.HandleFatalError(err)
 
 	projectFolderPath := filepath.Join(workingDirectory, projectName)
 	err = os.Mkdir(projectFolderPath, os.ModePerm)
-	util.HandleFatalError(err)
 
-	return projectFolderPath
+	return projectFolderPath, err
 }

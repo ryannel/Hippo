@@ -2,6 +2,8 @@ package postgresql
 
 import (
 	"database/sql"
+	"fmt"
+	_ "github.com/lib/pq"
 )
 
 //
@@ -51,8 +53,9 @@ import (
 //}
 //
 
-func New(host string, dbName string, user string, password string) (Postgresql, error) {
-	connStr := "User ID=" + user + ";Password=" + password + ";Host=" + host + ";Port=5432;Database=" + dbName + ";"
+func New(host string, port int, dbName string, user string, password string) (Postgresql, error) {
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",	host, port, user, password, dbName)
+
 	connection, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return Postgresql{}, err
@@ -67,12 +70,12 @@ type Postgresql struct {
 }
 
 func (psql *Postgresql) CreateUser(username string, password string) error {
-	_, err := psql.connection.Exec(`CREATE USER "` + username + ` WITH PASSWORD '`+ password + `';`)
+	_, err := psql.connection.Exec(`CREATE USER "` + username + `" WITH PASSWORD '`+ password + `'`)
 	return err
 }
 
 func (psql *Postgresql) CreateDb(dbName string, owner string) error {
-	_, err := psql.connection.Exec(`CREATE DATABASE "` + dbName + ` WITH OWNER "`+ owner + `" ENCODING utf8;`)
+	_, err := psql.connection.Exec(`CREATE DATABASE "` + dbName + `" WITH OWNER "`+ owner + `" ENCODING utf8;`)
 	return err
 }
 

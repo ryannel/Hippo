@@ -8,8 +8,6 @@ import (
 	"github.com/ryannel/hippo/pkg/util"
 	"github.com/spf13/cobra"
 	"log"
-	"os"
-	"path/filepath"
 )
 
 func init() {
@@ -45,9 +43,11 @@ Some usage examples.
 }
 
 func scaffoldProject (projectName string, language string) {
-	projectFolderPath := scaffoldManager.CreateProjectFolder(projectName)
+	projectFolderPath, err := scaffoldManager.CreateProjectFolder(projectName)
+	util.HandleFatalError(err)
 
 	scaffold, err := scaffoldManager.New(projectName, projectFolderPath, language)
+	util.HandleFatalError(err)
 
 	err = scaffold.CreateProjectTemplate()
 	util.HandleFatalError(err)
@@ -58,14 +58,7 @@ func scaffoldProject (projectName string, language string) {
 	err = scaffold.CreateReadme()
 	util.HandleFatalError(err)
 
-	err = configManager.CreateConfigFile(projectFolderPath)
-	util.HandleFatalError(err)
-
-	configPath := filepath.Join(projectFolderPath, "hippo.yaml")
-	_, err = os.Create(configPath)
-	util.HandleFatalError(err)
-
-	confManager, err := configManager.New(configPath)
+	confManager, err := configManager.Create(projectFolderPath)
 	util.HandleFatalError(err)
 
 	err = confManager.SetProjectName(projectName)
