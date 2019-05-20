@@ -28,6 +28,8 @@ type Config struct {
 	DockerRegistryUrl string `yaml:"DockerRegistryUrl"`
 	DockerRegistryUser string `yaml:"DockerRegistryUser"`
 	DockerRegistryPassword string `yaml:"DockerRegistryPassword"`
+
+	KubernetesContexts map[string]string `yaml:"KubernetesContexts"`
 }
 
 type configManager struct {

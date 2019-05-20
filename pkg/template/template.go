@@ -1,7 +1,9 @@
 package template
 
-func GetPostgresDeployYaml() string {
-	return `apiVersion: extensions/v1beta1
+import "strings"
+
+func PostgresDeployYaml(POSTGRES_DB string, POSTGRES_USER string, POSTGRES_PASSWORD string) string {
+	template := `apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
 	name: postgresql
@@ -43,10 +45,14 @@ spec:
 	selector:
 		app: postgresql
 	type: LoadBalancer`
+
+	template = strings.Replace(template, "{dbName}", POSTGRES_DB, -1)
+	template = strings.Replace(template, "{user}", POSTGRES_USER, -1)
+	return strings.Replace(template, "{password}", POSTGRES_PASSWORD, -1)
 }
 
-func GetRabbitDeployYaml() string {
-	return `apiVersion: apps/v1
+func RabbitDeployYaml(user string, password string) string {
+	template := `apiVersion: apps/v1
 kind: Deployment
 metadata:
   	labels:
@@ -96,10 +102,13 @@ spec:
   	selector:
     	app: rabbitmq
   	type: LoadBalancer`
+
+	template = strings.Replace(template, "{user}", user, -1)
+	return strings.Replace(template, "{password}", password, -1)
 }
 
-func GetGenericDeployYaml() string {
-	return `apiVersion: extensions/v1beta1
+func GenericDeployYaml(projectName string) string {
+	template := `apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
@@ -162,10 +171,12 @@ spec:
   selector:
     app: {projectname}
   type: ClusterIP`
+
+	return strings.Replace(template, "{projectname}", projectName, -1)
 }
 
-func GetGoDockerFile() string {
-	return `FROM golang:1.12.5 as build-base
+func GoDockerFile(projectName string) string {
+	template := `FROM golang:1.12.5 as build-base
 
 WORKDIR /build
 	
@@ -205,4 +216,6 @@ COPY --from=build-base /release/healthcheck /healthcheck
 
 ENTRYPOINT ["/{projectname}"]	
 `
+
+	return strings.Replace(template, "{projectname}", projectName, -1)
 }

@@ -1,4 +1,9 @@
 package postgresql
+
+import (
+	"database/sql"
+)
+
 //
 //import (
 //	_ "github.com/lib/pq"
@@ -45,27 +50,32 @@ package postgresql
 //	return templateContent, nil
 //}
 //
-//func CreateDb(dbName string, user string, password string) error {
-//	//podName, err := kubernetes.GetPodName("postgresql")
-//	//if err != nil {
-//	//	return err
-//	//}
-//	//
-//	//println(`Creating development db: kubectl.exe exec -it ` + podName + ` -- bash -c "echo \"CREATE USER \\\"` + user + `\\\" WITH PASSWORD '` + password + `'; CREATE DATABASE \\\"` + dbName + `\\\" WITH OWNER \\\"` + user + `\\\" ENCODING utf8\" | psql -U postgres -f -"`)
-//	//
-//	//connStr := "User ID=" + user + ";Password=" + password + ";Host=localhost;Port=5432;Database=" + dbName + ";"
-//	//
-//	//db, err := sql.Open("postgres", connStr)
-//	//if err != nil {
-//	//	log.Fatal(err)
-//	//}
-//	//defer db.Close()
-//	//
-//	//_, err = exec.Command("kubectl.exe",  "exec", "-it", podName, "--", "bash", "-c", `"echo hello"`).Output()
-//	////_, err = exec.Command("kubectl.exe",  "exec", "-it", podName, "--", "bash", "-c", `"echo \"CREATE USER \\\"` + user + `\\\" WITH PASSWORD '` + password + `'; CREATE DATABASE \\\"` + dbName + `\\\" WITH OWNER \\\"` + user + `\\\" ENCODING utf8\" | psql -U postgres -f -"`).Output()
-//	//if err != nil {
-//	//	return err
-//	//}
-//
-//	return nil
-//}
+
+func New(host string, dbName string, user string, password string) (Postgresql, error) {
+	connStr := "User ID=" + user + ";Password=" + password + ";Host=" + host + ";Port=5432;Database=" + dbName + ";"
+	connection, err := sql.Open("postgres", connStr)
+	if err != nil {
+		return Postgresql{}, err
+	}
+
+	return Postgresql{connStr, connection}, nil
+}
+
+type Postgresql struct {
+	connectionString string
+	connection *sql.DB
+}
+
+func (psql *Postgresql) CreateUser(username string, password string) error {
+	_, err := psql.connection.Exec(`CREATE USER "` + username + ` WITH PASSWORD '`+ password + `';`)
+	return err
+}
+
+func (psql *Postgresql) CreateDb(dbName string, owner string) error {
+	_, err := psql.connection.Exec(`CREATE DATABASE "` + dbName + ` WITH OWNER "`+ owner + `" ENCODING utf8;`)
+	return err
+}
+
+func (psql *Postgresql) Close() error {
+	return psql.connection.Close()
+}

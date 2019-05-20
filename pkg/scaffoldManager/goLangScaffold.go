@@ -5,7 +5,6 @@ import (
 	"github.com/ryannel/hippo/pkg/util"
 	"log"
 	"os/exec"
-	"strings"
 )
 
 type goLangScaffold struct {}
@@ -51,8 +50,7 @@ func (goLangScaffold) CreateGitIgnore(folder string) error {
 }
 
 func (goLangScaffold) CreateDockerFile(folder string, projectName string) error {
-	dockerFile := template.GetGoDockerFile()
-	dockerFile = strings.Replace(dockerFile, "{projectname}", projectName, -1)
+	dockerFile := template.GoDockerFile(projectName)
 	return util.CreateFile(folder, "Dockerfile", dockerFile)
 }
 

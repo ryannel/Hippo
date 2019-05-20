@@ -22,7 +22,7 @@ type Kubernetes struct {
 }
 
 func (k8 *Kubernetes) Deploy(deployYamlPath string) error {
-	command := k8.contextCommand + "apply --record=false -f " + deployYamlPath
+	command := k8.contextCommand + " apply --record=false -f " + deployYamlPath
 	log.Print("Deploying pod: " + command)
 
 	result, err := util.ExecStringCommand(command)
@@ -80,7 +80,7 @@ func getKubeContext(envName string, config environment.EnvConfig) (string, error
 	    return "", err
 	}
 
-	return kubectl + " " + contextArgs + " ", nil
+	return kubectl + " " + contextArgs, nil
 }
 
 
