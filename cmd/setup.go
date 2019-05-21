@@ -116,30 +116,80 @@ Some usage examples.
 }
 
 func setupLocalDb() {
-	confManager, err := configManager.New("hippo.yaml")
-	util.HandleFatalError(err)
-	config := confManager.GetConfig()
+	createK8LocalInstance := func () kubernetes.Kubernetes {
+		k8, err := kubernetes.New("--context docker-for-desktop --namespace default")
+		util.HandleFatalError(err)
+		return k8
+	}
 
-	k8, err := kubernetes.New("--context docker-for-desktop --namespace default")
-	util.HandleFatalError(err)
+	getConfig := func () configManager.Config{
+		confManager, err := configManager.New("hippo.yaml")
+		util.HandleFatalError(err)
+		return confManager.GetConfig()
+	}
 
-	psqlTemplate := template.PostgresDeployYaml("postgres", "postgres", "postgres")
+	createPostgresContainer := func(k8 kubernetes.Kubernetes) {
+		psqlTemplate := template.PostgresDeployYaml("postgres", "postgres", "postgres")
 
-	log.Print("Creating Postgresql container")
-	err = k8.Apply(psqlTemplate)
-	util.HandleFatalError(err)
+		log.Print("Creating Postgresql container")
+		err := k8.Apply(psqlTemplate)
+		util.HandleFatalError(err)
 
-	log.Print("Connecting to DB instance")
-	psql, err := postgresql.New("localhost", 5432, "postgres", "postgres", "postgres")
-	util.HandleFatalError(err)
+		log.Print("Creating Root DB Secret `shared-postgres`")
+		secretName := "shared-postgres"
+		secrets := map[string]string {
+			"POSTGRES_HOST": "postgres",
+			"POSTGRES_DB": "postgres",
+			"POSTGRES_USER": "postgres",
+			"POSTGRES_PASSWORD": "postgres",
+		}
 
-	log.Print("Creating dev user: `" + config.ProjectName + "` with password `" + config.ProjectName + "`")
-	err = psql.CreateUser(config.ProjectName, config.ProjectName)
-	log.Print(err)
+		_ := k8.DeleteSecret(secretName)
+		err = k8.CreateSecret(secretName, secrets)
+		util.HandleFatalError(err)
+	}
 
-	log.Print("Creating dev db: `" + config.ProjectName + "` with owner `" + config.ProjectName + "`")
-	err = psql.CreateDb(config.ProjectName, config.ProjectName)
-	util.HandleFatalError(err)
+	connectToPsql := func () postgresql.Postgresql {
+		log.Print("Connecting to DB instance")
+		psql, err := postgresql.New("localhost", 5432, "postgres", "postgres", "postgres")
+		util.HandleFatalError(err)
+		return psql
+	}
+
+	createDevDb := func(psql postgresql.Postgresql, projectName string ) {
+		log.Print("Creating dev db: `" + projectName + "` with owner `" + projectName + "`")
+		err := psql.CreateDb(projectName, projectName)
+		util.HandleFatalError(err)
+	}
+
+	createDbUser := func(psql postgresql.Postgresql, projectName string) {
+		log.Print("Creating dev user: `" + projectName + "` with password `" + projectName + "`")
+		err := psql.CreateUser(projectName, projectName)
+		log.Print(err)
+	}
+
+	setDevDbSecret := func(k8 kubernetes.Kubernetes, projectName string) {
+		log.Print("Creating Dev DB Secret `" + projectName + "`")
+		secretName := projectName
+		secrets := map[string]string {
+			"POSTGRES_HOST":     projectName,
+			"POSTGRES_DB":       projectName,
+			"POSTGRES_USER":     projectName,
+			"POSTGRES_PASSWORD": projectName,
+		}
+
+		_ := k8.DeleteSecret(secretName)
+		err := k8.CreateSecret(secretName, secrets)
+		util.HandleFatalError(err)
+	}
+
+	config := getConfig()
+	k8 := createK8LocalInstance()
+	createPostgresContainer(k8)
+	psql := connectToPsql()
+	createDevDb(psql, config.ProjectName)
+	createDbUser(psql, config.ProjectName)
+	setDevDbSecret(k8, config.ProjectName)
 }
 
 var setupWizardCmd = &cobra.Command{

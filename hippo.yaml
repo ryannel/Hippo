@@ -1,4 +1,4 @@
-ProjectName: testProject
+ProjectName: gpe-core
 Language: golang
 Docker:
   RegistryName: quay.io

@@ -66,6 +66,25 @@ func (k8 *Kubernetes) Apply(deployYaml string) error {
 	return err
 }
 
+func (k8 *Kubernetes) CreateSecret(secretName string , secrets map[string]string) error {
+	command := k8.command + " create secret generic " + secretName
+
+	for name, value := range secrets {
+		command = command + " --from-literal=" + name + "="+`"` + value + `"`
+	}
+
+	log.Print("Creating Secrets: " + command)
+	_, err := util.ExecStringCommand(command)
+	return err
+}
+
+func (k8 *Kubernetes) DeleteSecret(secretName string) error {
+	command := k8.command + "delete secret " + secretName
+	log.Print("Deleting Secret if Exists: " + command)
+	_, err := util.ExecStringCommand(command)
+	return err
+}
+
 func createTmpFile(deployYaml string) (*os.File, error){
 	file, err := ioutil.TempFile("", "psqlKubeDeploy")
 	if err != nil {
