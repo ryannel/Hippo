@@ -22,20 +22,6 @@ type Kubernetes struct {
 	command string
 }
 
-func (k8 *Kubernetes) Deploy(deployYamlPath string) error {
-	command := k8.command + " apply --record=false -f " + deployYamlPath
-	log.Print("Deploying pod: " + command)
-
-	result, err := util.ExecStringCommand(command)
-	if err != nil {
-		return err
-	}
-
-	print(result)
-
-	return nil
-}
-
 func (k8 *Kubernetes) GetPodName(appName string) (string, error) {
 	command := k8.command + ` get pods --selector app=` + appName + ` --output jsonpath={.items..metadata.name}`
 	log.Print("Getting pod name: " + command)

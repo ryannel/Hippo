@@ -29,7 +29,11 @@ type Config struct {
 		RegistryUser     string `yaml:"RegistryUser,omitempty"`
 		RegistryPassword string `yaml:"RegistryPassword,omitempty"`
 	} `yaml:"Docker,omitempty"`
-	KubernetesContexts map[string]string `yaml:"KubernetesContexts"`
+	KubernetesContexts map[string]string `yaml:"KubernetesContexts,omitempty"`
+	Deployments	map[string] struct {
+		KubernetesContext string `yaml:"KubernetesContext,omitempty"`
+		Run []string `yaml:"Run,omitempty"`
+	} `yaml:"Deployments,omitempty"`
 }
 
 type configManager struct {

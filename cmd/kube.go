@@ -43,7 +43,7 @@ Some usage examples.
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		err := kube.KubeDeploy(envName)
+		err := kube.Deploy(envName)
 		util.HandleFatalError(err)
 
 		log.Print("Deployment Completed.")

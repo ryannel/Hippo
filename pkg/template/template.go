@@ -116,7 +116,7 @@ metadata:
     app: {projectname}
   name: {projectname}
   annotations:
-    kubernetes.io/change-cause: "${TIMESTAMP} Deployed commit id: ${COMMIT}"
+    kubernetes.io/change-cause: "{timestamp} Deployed commit id: {commit}"
 spec:
   replicas: 2
   selector:
@@ -154,7 +154,7 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 5
         imagePullPolicy: IfNotPresent
-        image: {dockerRegistryUrl}/{projectname}:\${COMMIT}
+        image: {dockerRegistryUrl}/{projectname}:{commit}
         ports:
         - containerPort: 80
       restartPolicy: Always

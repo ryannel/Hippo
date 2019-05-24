@@ -1,10 +1,10 @@
-ProjectName: gpe-core
+ProjectName: test
 Language: golang
 Docker:
   RegistryName: quay.io
   RegistryUrl: quay.io/volvocars
-  RegistryUser: ryan.nel@volvocars.com
-  RegistryPassword: PmN75ZLSCc4EfC8
+  RegistryUser: rnel@volvocars.com
+  RegistryPassword: asdlfjaklsdjflksjadflkj;fksdjsdadlkajlsdk
 KubernetesContexts:
+  dev: --context some-dev-stff
   local: --context docker-for-desktop --namespace default
-  test: test
