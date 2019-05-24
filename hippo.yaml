@@ -5,5 +5,6 @@ Docker:
   RegistryUrl: quay.io/volvocars
   RegistryUser: ryan.nel@volvocars.com
   RegistryPassword: PmN75ZLSCc4EfC8
-KubernetesContexts: 
+KubernetesContexts:
   local: --context docker-for-desktop --namespace default
+  test: test

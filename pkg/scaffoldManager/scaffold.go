@@ -3,6 +3,7 @@ package scaffoldManager
 import (
 	"errors"
 	languageEnum "github.com/ryannel/hippo/pkg/enum/languages"
+	"github.com/ryannel/hippo/pkg/template"
 	"github.com/ryannel/hippo/pkg/util"
 	"log"
 	"os"
@@ -74,21 +75,17 @@ func (scaffold scaffold) CreateDockerIgnore() error {
 	return scaffold.languageScaffold.CreateDockerIgnore(scaffold.projectFolderPath)
 }
 
-//func createDeploymentFiles(projectFolderPath string, projectName string, dockerRegistryUrl string) error {
-//	deploymentFilePath := filepath.Join(projectFolderPath, "deployment_files")
-//	err := os.Mkdir(deploymentFilePath, os.ModePerm)
-//	if err != nil {
-//		return err
-//	}
-//
-//	templateContent := template.GetGenericDeployYaml()
-//	templateContent = strings.Replace(templateContent, "{projectname}", projectName, -1)
-//	templateContent = strings.Replace(templateContent, "{dockerRegistryUrl}", dockerRegistryUrl, -1)
-//
-//	err = util.CreateFile(deploymentFilePath, "deploy.yaml", templateContent)
-//
-//	return err
-//}
+func (scaffold scaffold) CreateDeploymentFile(dockerRegistryUrl string) error {
+	deploymentFilePath := filepath.Join(scaffold.projectFolderPath, "deployment_files")
+	err := os.Mkdir(deploymentFilePath, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	deployYaml := template.GenericDeployYaml(scaffold.projectName, dockerRegistryUrl)
+
+	return util.CreateFile(deploymentFilePath, "deploy.yaml", deployYaml)
+}
 
 func selectLanguageScaffold(language string) (languageScaffold, error) {
 	var scaffold languageScaffold

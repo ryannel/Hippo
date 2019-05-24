@@ -2,12 +2,10 @@ package cmd
 
 import (
 	"errors"
-	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/internal/scaffold"
 	languageEnum "github.com/ryannel/hippo/pkg/enum/languages"
-	"github.com/ryannel/hippo/pkg/scaffoldManager"
 	"github.com/ryannel/hippo/pkg/util"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 func init() {
@@ -38,40 +36,12 @@ Some usage examples.
 		language, err := util.PromptSelect("Project Language", []string{languageEnum.GoLang, "Bare"})
 		util.HandleFatalError(err)
 
-		scaffoldProject(projectName, language)
+		err = scaffold.ScaffoldProject(projectName, language)
+		util.HandleFatalError(err)
 	},
 }
 
-func scaffoldProject (projectName string, language string) {
-	projectFolderPath, err := scaffoldManager.CreateProjectFolder(projectName)
-	util.HandleFatalError(err)
 
-	scaffold, err := scaffoldManager.New(projectName, projectFolderPath, language)
-	util.HandleFatalError(err)
-
-	err = scaffold.CreateProjectTemplate()
-	util.HandleFatalError(err)
-
-	err = scaffold.CreateEditorConfig()
-	util.HandleFatalError(err)
-
-	err = scaffold.CreateReadme()
-	util.HandleFatalError(err)
-
-	confManager, err := configManager.Create(projectFolderPath)
-	util.HandleFatalError(err)
-
-	err = confManager.SetProjectName(projectName)
-	util.HandleFatalError(err)
-
-	err = confManager.SetLanguage(language)
-	util.HandleFatalError(err)
-
-	util.HandleFatalError(err)
-
-	log.Print("Project has been created at `./" + projectName + "`")
-	log.Print("Please initialise your version control in the project folder")
-}
 
 
 

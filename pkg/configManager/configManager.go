@@ -90,6 +90,11 @@ func (manager *configManager) SetDockerRegistryUrl(registryUrl string) error {
 	return manager.saveConfig()
 }
 
+func (manager *configManager) AddKubernetesContext(key string, value string) error {
+	manager.config.KubernetesContexts[key] = value
+	return manager.saveConfig()
+}
+
 func parseConfig(configPath string) (Config, error) {
 	var config Config
 

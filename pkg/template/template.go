@@ -108,7 +108,7 @@ spec:
 	return strings.Replace(template, "{password}", password, -1)
 }
 
-func GenericDeployYaml(projectName string) string {
+func GenericDeployYaml(projectName string, dockerRegistryUrl string) string {
 	template := `apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -173,6 +173,7 @@ spec:
     app: {projectname}
   type: ClusterIP`
 
+	template = strings.Replace(template, "{dockerRegistryUrl}", dockerRegistryUrl, -1)
 	return strings.Replace(template, "{projectname}", projectName, -1)
 }
 

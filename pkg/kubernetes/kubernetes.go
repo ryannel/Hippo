@@ -79,7 +79,7 @@ func (k8 *Kubernetes) CreateSecret(secretName string , secrets map[string]string
 }
 
 func (k8 *Kubernetes) DeleteSecret(secretName string) error {
-	command := k8.command + "delete secret " + secretName
+	command := k8.command + " delete secret " + secretName
 	log.Print("Deleting Secret if Exists: " + command)
 	_, err := util.ExecStringCommand(command)
 	return err
@@ -112,16 +112,4 @@ func getKubectlCommand() (string, error){
 
 	return "", errors.New("kubectl command not found")
 }
-
-func GetContext(contextName string, contexts map[string]string) (string, error){
-	var err error = nil
-
-	kubeContext := contexts[contextName]
-	if len(kubeContext) == 0 {
-		err = errors.New("env name (" + contextName + ") not found in hippo.yaml KubernetesContext list" )
-	}
-
-	return kubeContext, err
-}
-
 

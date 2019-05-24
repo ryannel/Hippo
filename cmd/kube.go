@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/ryannel/hippo/internal/kube"
 	"github.com/ryannel/hippo/pkg/util"
 	"github.com/spf13/cobra"
 	"log"
@@ -42,36 +43,11 @@ Some usage examples.
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		err := kubeDeploy(envName)
+		err := kube.KubeDeploy(envName)
 		util.HandleFatalError(err)
 
 		log.Print("Deployment Completed.")
 	},
-}
-
-func kubeDeploy(envName string) error {
-	//projectFolder, err := os.Getwd()
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//deployYamlPath := filepath.Join(projectFolder, "deployment_files", "deploy.yaml")
-	//
-	//exists, err := util.PathExists(deployYamlPath)
-	//if !exists || err != nil {
-	//	err = errors.New("deployment files do not exist. run `hippo setup kubernetes` to create them: " + deployYamlPath)
-	//	util.HandleFatalError(err)
-	//}
-	//
-	//config, err := configManager.GetConfig("hippo.yaml")
-	//
-	//k8, err := kubernetes.New(envName)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//return k8.Deploy(deployYamlPath)
-	return nil
 }
 
 
