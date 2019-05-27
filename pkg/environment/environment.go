@@ -3,7 +3,7 @@ package environment
 import (
 	"errors"
 	"gopkg.in/yaml.v2"
-	vcsEnum "github.com/ryannel/hippo/pkg/enum/versionControls"
+	vcsEnum "github.com/ryannel/hippo/pkg/enum/versionControlProviders"
 	"github.com/ryannel/hippo/pkg/util"
 	"io/ioutil"
 	"os"

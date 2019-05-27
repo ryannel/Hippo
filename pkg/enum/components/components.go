@@ -1,7 +1,8 @@
 package components
 
-const(
-	Docker = "docker"
-	Db     = "db"
-	Kubernetes = "kubernetes"
+const (
+	Docker         = "docker"
+	Db             = "db"
+	Kubernetes     = "kubernetes"
+	VersionControl = "VersionControl"
 )

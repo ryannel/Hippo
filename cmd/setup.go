@@ -89,3 +89,24 @@ Some usage examples.
 		log.Print(componentEnum.Db + " component has been created")
 	},
 }
+
+var setupVersionControl = &cobra.Command{
+	Use:   "git",
+	Short: "create remote git repository along with an initial commit",
+	Long: `create remote git repository along with an initial commit
+
+Some usage examples.
+`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 0 {
+			return errors.New("setup git takes no arguments")
+		}
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		err := setup.VersionControl()
+		util.HandleFatalError(err)
+
+		log.Print(componentEnum.VersionControl + " component has been created")
+	},
+}

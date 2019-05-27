@@ -34,6 +34,13 @@ type Config struct {
 		KubernetesContext string `yaml:"KubernetesContext,omitempty"`
 		Run []string `yaml:"Run,omitempty"`
 	} `yaml:"Deployments,omitempty"`
+	VersionControl struct {
+		Provider string `yaml:"Provider,omitempty"`
+		NameSpace string `yaml:"NameSpace,omitempty"`
+		Project string `yaml:"Project,omitempty"`
+		Repository string `yaml:"Repository,omitempty"`
+		RepositoryUrl string `yaml:"RepositoryUrl,omitempty"`
+	} `yaml:"VersionControl,omitempty"`
 }
 
 type configManager struct {
@@ -96,6 +103,31 @@ func (manager *configManager) SetDockerRegistryUrl(registryUrl string) error {
 
 func (manager *configManager) AddKubernetesContext(key string, value string) error {
 	manager.config.KubernetesContexts[key] = value
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetVersionControlProvider(vcProvider string) error {
+	manager.config.VersionControl.Provider = vcProvider
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetVersionControlNamespace(vcNamespace string) error {
+	manager.config.VersionControl.NameSpace = vcNamespace
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetVersionControlProject(vcProject string) error {
+	manager.config.VersionControl.Project = vcProject
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetVersionControlRepositoryName(vcRepo string) error {
+	manager.config.VersionControl.Repository = vcRepo
+	return manager.saveConfig()
+}
+
+func (manager *configManager) SetVersionControlUrl(vcUrl string) error {
+	manager.config.VersionControl.RepositoryUrl = vcUrl
 	return manager.saveConfig()
 }
 
