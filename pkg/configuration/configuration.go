@@ -24,6 +24,10 @@ func New() (Configuration, error) {
 	}
 
 	config, err := mergeConfigs(configPaths)
+	if err != nil {
+		return Configuration{}, err
+	}
+
 	return config, err
 }
 
@@ -183,6 +187,10 @@ func parseConfig(configPath string) (Configuration, error) {
 	err = yaml.Unmarshal(configYaml, &config)
 	if err != nil {
 		return config, err
+	}
+
+	if config.KubernetesContexts == nil {
+		config.KubernetesContexts = map[string]string{}
 	}
 
 	return config, err
