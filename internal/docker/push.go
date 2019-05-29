@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/docker"
 	"github.com/ryannel/hippo/pkg/versionControl"
 	"log"
@@ -13,11 +13,10 @@ func Push() error {
 		return err
 	}
 
-	confManager, err := configManager.New("hippo.yaml")
+	config, err := configuration.New()
 	if err != nil {
 		return err
 	}
-	config := confManager.GetConfig()
 
 	var commitTag string
 	var branchTag string
@@ -29,23 +28,25 @@ func Push() error {
 
 	imageName := config.ProjectName
 
-	err = docker.Login(config.Docker.RegistryUrl, config.Docker.RegistryUser, config.Docker.RegistryPassword)
+	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.RegistryDomain, config.Docker.Namespace, config.Docker.RegistryRepository)
+
+	err = docker.Login(registryUrl, config.Docker.RegistryUser, config.Docker.RegistryPassword)
 	if err != nil {
 		return err
 	}
 
-	err = docker.Push(config.Docker.RegistryUrl, imageName, commitTag)
+	err = docker.Push(registryUrl, imageName, commitTag)
 	if err != nil {
 		return err
 	}
 
-	err = docker.Push(config.Docker.RegistryUrl, imageName, branchTag)
+	err = docker.Push(registryUrl, imageName, branchTag)
 	if err != nil {
 		return err
 	}
 
 	if branchTag == "master" {
-		err = docker.Push(config.Docker.RegistryUrl, imageName, "latest")
+		err = docker.Push(registryUrl, imageName, "latest")
 		if err != nil {
 			return err
 		}

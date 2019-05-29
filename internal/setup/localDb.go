@@ -1,7 +1,7 @@
 package setup
 
 import (
-	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/kubernetes"
 	"github.com/ryannel/hippo/pkg/postgresql"
 	"github.com/ryannel/hippo/pkg/template"
@@ -9,7 +9,7 @@ import (
 )
 
 func SetupLocalDb() error {
-	config, err := getConfig()
+	config, err := configuration.New()
 	if err != nil {
 		return err
 	}
@@ -55,14 +55,6 @@ func createK8LocalInstance()(kubernetes.Kubernetes, error) {
 		return kubernetes.Kubernetes{}, err
 	}
 	return k8, nil
-}
-
-func getConfig()(configManager.Config, error) {
-	confManager, err := configManager.New("hippo.yaml")
-	if err != nil {
-		return configManager.Config{}, err
-	}
-	return confManager.GetConfig(), nil
 }
 
 func createPostgresContainer(k8 kubernetes.Kubernetes) error {

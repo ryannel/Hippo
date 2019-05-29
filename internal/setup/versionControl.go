@@ -1,58 +1,42 @@
 package setup
 
 import (
-	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/enum/versionControlProviders"
 	"github.com/ryannel/hippo/pkg/util"
-	"github.com/ryannel/hippo/pkg/versionControl"
 )
 
 func VersionControl() error {
-	confManager, err := configManager.New("hippo.yaml")
+	config, err := configuration.New()
 	if err != nil {
 		return err
 	}
 
-	config := confManager.GetConfig()
-
-	vcProvider, err := util.PromptSelect("Version Control Provider", []string{versionControlProviders.Azure, versionControlProviders.Git})
-	if err != nil {
-		return err
-	}
-	err = confManager.SetVersionControlProvider(vcProvider)
-	if err != nil {
-		return err
+	if config.VersionControl.Provider == "" {
+		vcProvider, err := util.PromptSelect("Version Control Provider", []string{versionControlProviders.Azure, versionControlProviders.Git})
+		if err != nil {
+			return err
+		}
+		config.VersionControl.Provider = vcProvider
 	}
 
-	vcNameSpace, err := util.PromptString("Version Control Namespace")
-	if err != nil {
-		return err
-	}
-	err = confManager.SetVersionControlNamespace(vcNameSpace)
-	if err != nil {
-	    return err
-	}
-
-	vcProject, err := util.PromptString("VersionControlProject")
-	if err != nil {
-	    return err
-	}
-	err = confManager.SetVersionControlProject(vcProject)
-	if err != nil {
-	    return err
+	if config.VersionControl.NameSpace == "" {
+		vcNameSpace, err := util.PromptString("Version Control Namespace")
+		if err != nil {
+			return err
+		}
+		config.VersionControl.NameSpace = vcNameSpace
 	}
 
-	vcRepo := config.ProjectName
-	err = confManager.SetVersionControlRepositoryName(vcRepo)
-	if err != nil {
-	    return err
-	}
-	
-	vcUrl := versionControl.BuildvcUrl(vcProvider, vcNameSpace, vcProject, vcRepo)
-	err = confManager.SetVersionControlUrl(vcUrl)
-	if err != nil {
-	    return err
+	if config.VersionControl.Project == "" {
+		vcProject, err := util.PromptString("VersionControlProject")
+		if err != nil {
+			return err
+		}
+		config.VersionControl.Project = vcProject
 	}
 
-	return nil
+	config.VersionControl.Repository = config.ProjectName
+
+	return config.SaveConfig()
 }

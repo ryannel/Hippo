@@ -2,20 +2,19 @@ package setup
 
 import (
 	"errors"
-	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/pkg/configuration"
+	"github.com/ryannel/hippo/pkg/docker"
 	"github.com/ryannel/hippo/pkg/scaffoldManager"
 	"github.com/ryannel/hippo/pkg/util"
 )
 
 func Kubernetes(wd string) error {
-	confManager, err := configManager.New("hippo.yaml")
+	config, err := configuration.New()
 	if err != nil {
 		return err
 	}
 
-	config := confManager.GetConfig()
-
-	if config.Docker.RegistryUrl == "" {
+	if config.Docker.RegistryDomain == "" {
 		return errors.New("docker registry not configured. Please run `hippo setup docker` to configure")
 	}
 
@@ -30,7 +29,8 @@ func Kubernetes(wd string) error {
 			return err
 		}
 
-		err = confManager.AddKubernetesContext(key, value)
+		config.KubernetesContexts[key] = value
+		err = config.SaveConfig()
 		if err != nil {
 			return err
 		}
@@ -41,7 +41,8 @@ func Kubernetes(wd string) error {
 		return err
 	}
 
-	err = scaffold.CreateDeploymentFile(config.Docker.RegistryUrl)
+	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.RegistryDomain, config.Docker.Namespace, config.Docker.RegistryRepository)
+	err = scaffold.CreateDeploymentFile(registryUrl)
 	if err != nil {
 		return err
 	}

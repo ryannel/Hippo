@@ -1,19 +1,18 @@
 package setup
 
 import (
-	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/docker"
 	"github.com/ryannel/hippo/pkg/enum/dockerRegistries"
 	"github.com/ryannel/hippo/pkg/scaffoldManager"
 	"github.com/ryannel/hippo/pkg/util"
 )
 
-func SetupDocker(projectFolderPath string) error {
-	confManager, err := configManager.New("hippo.yaml")
+func Docker(projectFolderPath string) error {
+	config, err := configuration.New()
 	if err != nil {
 		return err
 	}
-	config := confManager.GetConfig()
 
 	scaffold, err := scaffoldManager.New(config.ProjectName, projectFolderPath, config.Language)
 	if err != nil {
@@ -30,48 +29,53 @@ func SetupDocker(projectFolderPath string) error {
 		return err
 	}
 
-	dockerRegistry, err := util.PromptSelect("Docker Registry", []string{dockerRegistries.QuayIo, "None"})
-	if err != nil {
-		return err
+	registryName := config.Docker.RegistryName
+	if registryName == "" {
+		registryName, err = util.PromptSelect("Docker Registry", []string{dockerRegistries.QuayIo, "None"})
+		if err != nil {
+			return err
+		}
+		config.Docker.RegistryName = registryName
+		config.Docker.RegistryDomain = docker.GetRegistryDomain(registryName)
 	}
 
-	if dockerRegistry == "None" {
+	if registryName == "None" {
+		err = config.SaveConfig()
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
-	err = confManager.SetDockerRegistry(dockerRegistry)
-	if err != nil {
-		return err
+	if config.Docker.RegistryRepository == "" {
+		config.Docker.RegistryRepository = config.ProjectName
 	}
 
-	registryDomain := docker.GetRegistryDomain(dockerRegistry)
-
-	registryNamespace, err := util.PromptString("Docker Registry Namespace")
-	if err != nil {
-		return err
+	if config.Docker.Namespace == "" {
+		registryNamespace, err := util.PromptString("Docker Registry Namespace")
+		if err != nil {
+			return err
+		}
+		config.Docker.Namespace = registryNamespace
 	}
 
-	err = confManager.SetDockerRegistryUrl(registryDomain + "/" + registryNamespace)
-	if err != nil {
-		return err
+	if config.Docker.RegistryUser == "" {
+		registryUser, err := util.PromptString("Docker Registry Username")
+		if err != nil {
+			return err
+		}
+		config.Docker.RegistryUser = registryUser
 	}
 
-	dockerRegistryUser, err := util.PromptString("Docker Registry Username")
-	if err != nil {
-		return err
+	if config.Docker.RegistryPassword == "" {
+		registryPassword, err := util.PromptPassword("Docker Registry Password")
+		if err != nil {
+			return err
+		}
+		config.Docker.RegistryPassword = registryPassword
 	}
 
-	err = confManager.SetDockerRegistryUser(dockerRegistryUser)
-	if err != nil {
-		return err
-	}
-
-	dockerRegistryPassword, err := util.PromptPassword("Docker Registry Password")
-	if err != nil {
-		return err
-	}
-
-	err = confManager.SetDockerRegistryPassword(dockerRegistryPassword)
+	err = config.SaveConfig()
 	if err != nil {
 		return err
 	}

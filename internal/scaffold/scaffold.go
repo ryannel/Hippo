@@ -1,7 +1,7 @@
 package scaffold
 
 import (
-	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/scaffoldManager"
 	"log"
 )
@@ -32,21 +32,15 @@ func ScaffoldProject(projectName string, language string) error {
 		return err
 	}
 
-	confManager, err := configManager.Create(projectFolderPath)
+	config, err := configuration.Create(projectFolderPath)
 	if err != nil {
 		return err
 	}
 
-	err = confManager.SetProjectName(projectName)
-	if err != nil {
-		return err
-	}
+	config.ProjectName = projectName
+	config.Language = language
 
-	err = confManager.SetLanguage(language)
-	if err != nil {
-		return err
-	}
-
+	err = config.SaveConfig()
 	if err != nil {
 		return err
 	}

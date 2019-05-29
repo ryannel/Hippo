@@ -2,7 +2,7 @@ package kube
 
 import (
 	"errors"
-	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/kubernetes"
 	"github.com/ryannel/hippo/pkg/util"
 	"github.com/ryannel/hippo/pkg/versionControl"
@@ -27,12 +27,10 @@ func Deploy(envName string) error {
 		return errors.New("deployment files do not exist. run `hippo setup kubernetes` to create them: " + deployYamlPath)
 	}
 
-	confManager, err := configManager.New("hippo.yaml")
+	config, err := configuration.New()
 	if err != nil {
 		return err
 	}
-
-	config := confManager.GetConfig()
 
 	kubeEnv := config.KubernetesContexts[envName]
 	if len(kubeEnv) == 0 {

@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"github.com/ryannel/hippo/pkg/configManager"
+	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/docker"
 	"github.com/ryannel/hippo/pkg/versionControl"
 	"log"
@@ -13,11 +13,10 @@ func Build() error {
 		return err
 	}
 
-	confManager, err := configManager.New("hippo.yaml")
+	config, err := configuration.New()
 	if err != nil {
 		return err
 	}
-	config := confManager.GetConfig()
 
 	var commitTag string
 	var branchTag string
@@ -27,7 +26,9 @@ func Build() error {
 		branchTag, _ = vcs.GetBranchReplaceSlash()
 	}
 
-	imageName := generateDockerImageName(config.Docker.RegistryUrl, config.ProjectName)
+	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.RegistryDomain, config.Docker.Namespace, config.Docker.RegistryRepository)
+
+	imageName := generateDockerImageName(registryUrl, config.ProjectName)
 
 	err = docker.Build(imageName, commitTag)
 	if err != nil {

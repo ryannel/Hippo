@@ -15,6 +15,7 @@ func init() {
 	setupCmd.AddCommand(setupDockerCmd)
 	setupCmd.AddCommand(setupLocalDbCmd)
 	setupCmd.AddCommand(setupKubernetesCmd)
+	setupCmd.AddCommand(setupVersionControlCmd)
 	rootCmd.AddCommand(setupCmd)
 }
 
@@ -38,7 +39,7 @@ Some usage examples.
 		projectFolderPath, err := os.Getwd()
 		util.HandleFatalError(err)
 
-		err = setup.SetupDocker(projectFolderPath)
+		err = setup.Docker(projectFolderPath)
 		util.HandleFatalError(err)
 
 		log.Print(componentEnum.Docker + " component has been created")
@@ -90,7 +91,7 @@ Some usage examples.
 	},
 }
 
-var setupVersionControl = &cobra.Command{
+var setupVersionControlCmd = &cobra.Command{
 	Use:   "git",
 	Short: "create remote git repository along with an initial commit",
 	Long: `create remote git repository along with an initial commit
