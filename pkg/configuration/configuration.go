@@ -10,22 +10,37 @@ import (
 	"path/filepath"
 )
 
+var parentConfig Configuration
+
 func New() (Configuration, error) {
-	configPaths, err := getConfigPaths()
+	currentDir, err := os.Getwd()
 	if err != nil {
 		return Configuration{}, err
 	}
 
-	return mergeConfigs(configPaths)
+	configPaths, err := walkConfigsFromPath(currentDir)
+	if err != nil {
+		return Configuration{}, err
+	}
+
+	config, err := mergeConfigs(configPaths)
+	return config, err
 }
 
-func getConfigPaths() ([]string, error) {
+func newFromPath(path string) (Configuration, error) {
+	configPaths, err := walkConfigsFromPath(path)
+	if err != nil {
+		return Configuration{}, err
+	}
+
+	config, err := mergeConfigs(configPaths)
+	parentConfig = config
+	return config, err
+}
+
+func walkConfigsFromPath(currentDir string) ([]string, error) {
 	var configs []string
 
-	currentDir, err := os.Getwd()
-	if err != nil {
-		return []string{}, err
-	}
 	parentDir := filepath.Dir(currentDir)
 
 	for currentDir != parentDir {
@@ -36,7 +51,11 @@ func getConfigPaths() ([]string, error) {
 		}
 
 		currentDir = parentDir
-		parentDir = filepath.Dir(currentDir)
+		if parentDir == filepath.Dir(currentDir) {
+			parentDir = "."
+		} else {
+			parentDir = filepath.Dir(currentDir)
+		}
 	}
 
 	return configs, nil
@@ -59,15 +78,18 @@ func mergeConfigs(configPaths []string) (Configuration, error) {
 			return Configuration{}, err
 		}
 
+		if numConfigs == len(configPaths) - 1 {
+			parentConfig = baseConfig
+		}
+
 		configs := configPaths[:numConfigs-1]
 		numConfigs = len(configs)
 	}
-
 	return baseConfig, nil
 }
 
 type Configuration struct {
-	configPath string
+	configPath  string
 	ProjectName string `yaml:"ProjectName,omitempty"`
 	Language    string `yaml:"Language,omitempty"`
 	Docker      struct {
@@ -92,6 +114,54 @@ type Configuration struct {
 }
 
 func (config *Configuration) SaveConfig() error {
+	if config.ProjectName == parentConfig.ProjectName {
+		config.ProjectName = ""
+	}
+
+	if config.Language == parentConfig.Language {
+		config.Language = ""
+	}
+
+	if config.Docker.RegistryName == parentConfig.Docker.RegistryName {
+		config.Docker.RegistryName = ""
+	}
+
+	if config.Docker.RegistryDomain == parentConfig.Docker.RegistryDomain {
+		config.Docker.RegistryDomain = ""
+	}
+
+	if config.Docker.RegistryRepository == parentConfig.Docker.RegistryRepository {
+		config.Docker.RegistryRepository = ""
+	}
+
+	if config.Docker.Namespace == parentConfig.Docker.Namespace {
+		config.Docker.Namespace = ""
+	}
+
+	if config.Docker.RegistryUser == parentConfig.Docker.RegistryUser {
+		config.Docker.RegistryUser = ""
+	}
+
+	if config.Docker.RegistryPassword == parentConfig.Docker.RegistryPassword {
+		config.Docker.RegistryPassword = ""
+	}
+
+	if config.VersionControl.Provider == parentConfig.VersionControl.Provider {
+		config.VersionControl.Provider = ""
+	}
+
+	if config.VersionControl.NameSpace == parentConfig.VersionControl.NameSpace {
+		config.VersionControl.NameSpace = ""
+	}
+
+	if config.VersionControl.Project == parentConfig.VersionControl.Project {
+		config.VersionControl.Project = ""
+	}
+
+	if config.VersionControl.Repository == parentConfig.VersionControl.Repository {
+		config.VersionControl.Repository = ""
+	}
+
 	configYaml, err := yaml.Marshal(config)
 	if err != nil {
 		return err
@@ -125,5 +195,5 @@ func Create(path string) (Configuration, error) {
 		return Configuration{}, err
 	}
 
-	return New()
+	return newFromPath(path)
 }

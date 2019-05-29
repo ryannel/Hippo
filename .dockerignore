@@ -1,9 +1,0 @@
-.git
-DockerFile
-README.md
-deployment_files
-.idea
-.vscode
-.gitignore
-azure-pipelines.yml
-.editorconfig
