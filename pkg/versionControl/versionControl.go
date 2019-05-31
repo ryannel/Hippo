@@ -13,19 +13,24 @@ import (
 	"strings"
 )
 
-func New(vcProvider string, vcNameSpace string, vcProject string, vcRepo string, vcUser string, vcPassword string) (VersionControl, error) {
-	vcProviderUrl := buildVcUrl(vcProvider, vcNameSpace, vcProject, vcRepo)
+func New(provider string, namespace string, project string, repository string, username string, password string) (VersionControl, error) {
+	vcUrl, err := getVcUrl(provider, namespace, project, repository)
+	if err != nil {
+		return VersionControl{}, err
+	}
 
-	return VersionControl{vcProviderUrl, vcUser, vcPassword, vcRepo}, nil
+	return VersionControl{provider, namespace, project, repository, username, password, vcUrl}, nil
 }
 
 type VersionControl struct {
-	repositoryUrl string
+	provider      string
+	namespace     string
+	project       string
 	repository    string
 	username      string
 	password      string
+	repositoryUrl string
 }
-
 
 func (vcs *VersionControl) Init() error {
 	command := "git init"
@@ -93,6 +98,7 @@ func (vcs *VersionControl) GetCommit() (string, error) {
 
 func (vcs *VersionControl) CreateRepository() error {
 	url := "https://dev.azure.com/fabrikam/_apis/git/repositories?api-version=5.0"
+	log.Print("Creating remote repository: " + vcs.repositoryUrl)
 
 	request := struct {
 		name    string
@@ -146,7 +152,7 @@ func (vcs *VersionControl) CreateCommit(message string) error {
 
 	command := `git commit -m "` + message + `"`
 	log.Print("Creating Git commit: " + command)
-	_, err = exec.Command("git", "commit", "-m", `"` + message + `"`).Output()
+	_, err = exec.Command("git", "commit", "-m", `"`+message+`"`).Output()
 	return err
 }
 
@@ -162,15 +168,17 @@ func (vcs *VersionControl) TrackAllFiles() error {
 	return err
 }
 
-func buildVcUrl(vcProvider string, vcNameSpace string, vcProject string, vcRepo string) string {
+func getVcUrl(provider string, namespace string, project string, repository string) (string, error) {
 	var vcUrl string
 
-	switch vcProvider {
+	switch provider {
 	case versionControlProviders.Azure:
-		vcUrl = buildAzureVcUrl(vcNameSpace, vcProject, vcRepo)
+		vcUrl = buildAzureVcUrl(namespace, project, repository)
+	default:
+		return "", errors.New("Invalid Version control Provider")
 	}
 
-	return vcUrl
+	return vcUrl, nil
 }
 
 func buildAzureVcUrl(vcNamespace string, vcProject string, vcRepository string) string {

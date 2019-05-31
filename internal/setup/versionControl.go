@@ -65,10 +65,10 @@ func VersionControl() error {
 		return err
 	}
 
-	//err = vcs.Init()
-	//if err != nil {
-	//	return err
-	//}
+	err = vcs.Init()
+	if err != nil {
+		return err
+	}
 
 	err = vcs.TrackAllFiles()
 	if err != nil {
