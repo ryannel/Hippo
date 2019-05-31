@@ -82,7 +82,7 @@ func mergeConfigs(configPaths []string) (Configuration, error) {
 			return Configuration{}, err
 		}
 
-		if numConfigs == len(configPaths) - 1 {
+		if numConfigs == len(configPaths)-1 {
 			parentConfig = baseConfig
 		}
 
@@ -114,6 +114,8 @@ type Configuration struct {
 		NameSpace  string `yaml:"NameSpace,omitempty"`
 		Project    string `yaml:"Project,omitempty"`
 		Repository string `yaml:"Repository,omitempty"`
+		Username   string `yaml:"Username,omitempty"`
+		Password   string `yaml:"Password,omitempty"`
 	} `yaml:"VersionControl,omitempty"`
 }
 
@@ -164,6 +166,14 @@ func (config *Configuration) SaveConfig() error {
 
 	if config.VersionControl.Repository == parentConfig.VersionControl.Repository {
 		config.VersionControl.Repository = ""
+	}
+
+	if config.VersionControl.Username == parentConfig.VersionControl.Username {
+		config.VersionControl.Username = ""
+	}
+
+	if config.VersionControl.Password == parentConfig.VersionControl.Password {
+		config.VersionControl.Password = ""
 	}
 
 	configYaml, err := yaml.Marshal(config)

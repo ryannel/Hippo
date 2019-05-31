@@ -18,12 +18,19 @@ func Push() error {
 		return err
 	}
 
-	var commitTag string
-	var branchTag string
-	vcs, err := versionControl.New()
-	if err == nil {
-		commitTag, _ = vcs.GetCommit()
-		branchTag, _ = vcs.GetBranchReplaceSlash()
+	vcs, err := versionControl.New(config.VersionControl.Provider, config.VersionControl.NameSpace, config.VersionControl.Project, config.VersionControl.Repository, config.VersionControl.Username, config.VersionControl.Password)
+	if err != nil {
+		return err
+	}
+
+	commitTag, err := vcs.GetCommit()
+	if err != nil {
+		return err
+	}
+
+	branchTag, err := vcs.GetBranchReplaceSlash()
+	if err != nil {
+		return err
 	}
 
 	imageName := config.ProjectName

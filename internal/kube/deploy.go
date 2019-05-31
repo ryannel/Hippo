@@ -42,7 +42,7 @@ func Deploy(envName string) error {
 		return err
 	}
 
-	vcs, err := versionControl.New()
+	vcs, err := versionControl.New(config.VersionControl.Provider, config.VersionControl.NameSpace, config.VersionControl.Project, config.VersionControl.Repository, config.VersionControl.Username, config.VersionControl.Password)
 	if err != nil {
 		return errors.New("unable to find git. Please run `git init` and create a commit")
 	}

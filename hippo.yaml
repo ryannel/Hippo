@@ -1,9 +1,0 @@
-ProjectName: testProject
-Language: golang
-Docker:
-  RegistryRepository: testProject
-VersionControl:
-  Provider: Azure Devops
-  NameSpace: test
-  Project: test
-  Repository: testProject
