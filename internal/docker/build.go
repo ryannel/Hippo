@@ -26,7 +26,7 @@ func Build() error {
 		branchTag, _ = vcs.GetBranchReplaceSlash()
 	}
 
-	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.RegistryDomain, config.Docker.Namespace, config.Docker.RegistryRepository)
+	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.Namespace, config.Docker.RegistryRepository)
 
 	imageName := generateDockerImageName(registryUrl, config.ProjectName)
 

@@ -12,7 +12,8 @@ func GetRegistryDomain(registryName string) string {
 	return domain
 }
 
-func BuildReigistryUrl(registryName string, domain string, namespace string, reposiory string) string {
+func BuildReigistryUrl(registryName string, namespace string, reposiory string) string {
+	domain := GetRegistryDomain(registryName)
 	var url string
 	switch registryName {
 	case dockerRegistries.QuayIo: url = "https://" + domain + "/" + namespace + "/" + reposiory

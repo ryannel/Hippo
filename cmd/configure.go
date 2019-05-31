@@ -3,8 +3,6 @@ package cmd
 import (
 	"errors"
 	"github.com/spf13/cobra"
-	"github.com/ryannel/hippo/pkg/environment"
-	"log"
 )
 
 func init() {
@@ -26,11 +24,11 @@ Some usage examples.
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		err := environment.GenerateConfig()
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Print("Configuration Completed.")
+		panic("Not implemented")
+		//err := environment.GenerateConfig()
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
 	},
 }
 

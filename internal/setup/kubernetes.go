@@ -41,7 +41,7 @@ func Kubernetes(wd string) error {
 		return err
 	}
 
-	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.RegistryDomain, config.Docker.Namespace, config.Docker.RegistryRepository)
+	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.Namespace, config.Docker.RegistryRepository)
 	err = scaffold.CreateDeploymentFile(registryUrl)
 	if err != nil {
 		return err
