@@ -11,6 +11,6 @@ func TestGetRegistryDomain(t *testing.T) {
 }
 
 func TestBuildReigistryUrl(t *testing.T) {
-	url := BuildReigistryUrl("quay","namespace", "repo")
-	assert.Equal(t, "https://quay.io/namespace/repo", url)
+	url := BuildReigistryUrl("quay","namespace")
+	assert.Equal(t, "quay.io/namespace", url)
 }

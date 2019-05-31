@@ -1,25 +1,34 @@
 package versionControl
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"github.com/ryannel/hippo/pkg/enum/versionControlProviders"
 	"github.com/ryannel/hippo/pkg/util"
 	"log"
-	"net/http"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
 func New(provider string, namespace string, project string, repository string, username string, password string) (VersionControl, error) {
-	vcUrl, err := getVcUrl(provider, namespace, project, repository)
+	providerHandler, err := getProvider(provider, namespace,project, repository, username, password)
 	if err != nil {
 		return VersionControl{}, err
 	}
 
-	return VersionControl{provider, namespace, project, repository, username, password, vcUrl}, nil
+	return VersionControl{provider, namespace, project, repository, username, password, providerHandler}, nil
+}
+
+func getProvider(provider string, namespace string, project string, repository string, username string, password string) (hostProvider, error) {
+	var hostProvider hostProvider
+	var err error
+
+	switch provider {
+	case versionControlProviders.Azure: hostProvider = &azureProvider{namespace, project, repository, username, password}
+	default: err = errors.New("Unknown provider: " + provider)
+	}
+
+	return hostProvider, err
 }
 
 type VersionControl struct {
@@ -29,7 +38,12 @@ type VersionControl struct {
 	repository    string
 	username      string
 	password      string
-	repositoryUrl string
+	hostProvider hostProvider
+}
+
+type hostProvider interface {
+	createRepository() error
+	getRepositoryUrl() string
 }
 
 func (vcs *VersionControl) Init() error {
@@ -97,39 +111,7 @@ func (vcs *VersionControl) GetCommit() (string, error) {
 }
 
 func (vcs *VersionControl) CreateRepository() error {
-	url := "https://dev.azure.com/fabrikam/_apis/git/repositories?api-version=5.0"
-	log.Print("Creating remote repository: " + vcs.repositoryUrl)
-
-	request := struct {
-		name    string
-		project struct {
-			id string
-		}
-	}{vcs.repository, struct{ id string }{""}}
-
-	requestJson, err := json.Marshal(request)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestJson))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(vcs.username, vcs.password)
-
-	client := &http.Client{}
-	response, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	err = response.Body.Close()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return vcs.hostProvider.createRepository()
 }
 
 func (vcs *VersionControl) SetOrigin() error {
@@ -138,7 +120,7 @@ func (vcs *VersionControl) SetOrigin() error {
 		return err
 	}
 
-	command := "git remote add origin " + vcs.repositoryUrl
+	command := "git remote add origin " + vcs.hostProvider.getRepositoryUrl()
 	log.Print("Adding Git Origin: " + command)
 	_, err = util.ExecStringCommand(command)
 	return err
@@ -166,21 +148,4 @@ func (vcs *VersionControl) TrackAllFiles() error {
 	log.Print("Add all files to tracking: " + command)
 	_, err = util.ExecStringCommand(command)
 	return err
-}
-
-func getVcUrl(provider string, namespace string, project string, repository string) (string, error) {
-	var vcUrl string
-
-	switch provider {
-	case versionControlProviders.Azure:
-		vcUrl = buildAzureVcUrl(namespace, project, repository)
-	default:
-		return "", errors.New("Invalid Version control Provider")
-	}
-
-	return vcUrl, nil
-}
-
-func buildAzureVcUrl(vcNamespace string, vcProject string, vcRepository string) string {
-	return "http://" + vcNamespace + ".visualstudio.com/" + vcProject + "/_git/" + vcRepository
 }

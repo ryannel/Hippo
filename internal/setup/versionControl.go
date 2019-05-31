@@ -8,54 +8,7 @@ import (
 )
 
 func VersionControl() error {
-	config, err := configuration.New()
-	if err != nil {
-		return err
-	}
-
-	if config.VersionControl.Provider == "" {
-		vcProvider, err := util.PromptSelect("Version Control Provider", []string{versionControlProviders.Azure, versionControlProviders.Git})
-		if err != nil {
-			return err
-		}
-		config.VersionControl.Provider = vcProvider
-	}
-
-	if config.VersionControl.NameSpace == "" {
-		vcNameSpace, err := util.PromptString("Version Control Namespace")
-		if err != nil {
-			return err
-		}
-		config.VersionControl.NameSpace = vcNameSpace
-	}
-
-	if config.VersionControl.Project == "" {
-		vcProject, err := util.PromptString("Version Control Project")
-		if err != nil {
-			return err
-		}
-		config.VersionControl.Project = vcProject
-	}
-
-	config.VersionControl.Repository = config.ProjectName
-
-	if config.VersionControl.Username == "" {
-		vcUseranme, err := util.PromptString("Version Control Username")
-		if err != nil {
-			return err
-		}
-		config.VersionControl.Username = vcUseranme
-	}
-
-	if config.VersionControl.Password == "" {
-		vcPassword, err := util.PromptPassword("Version Control Password")
-		if err != nil {
-			return err
-		}
-		config.VersionControl.Password = vcPassword
-	}
-
-	err =  config.SaveConfig()
+	config, err := populateConfig()
 	if err != nil {
 		return err
 	}
@@ -91,4 +44,60 @@ func VersionControl() error {
 	}
 
 	return nil
+}
+
+func populateConfig() (configuration.Configuration, error) {
+	config, err := configuration.New()
+	if err != nil {
+		return configuration.Configuration{}, err
+	}
+
+	if config.VersionControl.Provider == "" {
+		vcProvider, err := util.PromptSelect("Version Control Provider", []string{versionControlProviders.Azure, versionControlProviders.Git})
+		if err != nil {
+			return configuration.Configuration{}, err
+		}
+		config.VersionControl.Provider = vcProvider
+	}
+
+	if config.VersionControl.NameSpace == "" {
+		vcNameSpace, err := util.PromptString("Version Control Namespace")
+		if err != nil {
+			return configuration.Configuration{}, err
+		}
+		config.VersionControl.NameSpace = vcNameSpace
+	}
+
+	if config.VersionControl.Project == "" {
+		vcProject, err := util.PromptString("Version Control Project")
+		if err != nil {
+			return configuration.Configuration{}, err
+		}
+		config.VersionControl.Project = vcProject
+	}
+
+	config.VersionControl.Repository = config.ProjectName
+
+	if config.VersionControl.Username == "" {
+		vcUseranme, err := util.PromptString("Version Control Username")
+		if err != nil {
+			return configuration.Configuration{}, err
+		}
+		config.VersionControl.Username = vcUseranme
+	}
+
+	if config.VersionControl.Password == "" {
+		vcPassword, err := util.PromptPassword("Version Control Password")
+		if err != nil {
+			return configuration.Configuration{}, err
+		}
+		config.VersionControl.Password = vcPassword
+	}
+
+	err =  config.SaveConfig()
+	if err != nil {
+		return configuration.Configuration{}, err
+	}
+
+	return config, nil
 }

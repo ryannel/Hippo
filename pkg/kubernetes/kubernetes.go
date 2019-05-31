@@ -72,7 +72,7 @@ func (k8 *Kubernetes) DeleteSecret(secretName string) error {
 }
 
 func createTmpFile(deployYaml string) (*os.File, error){
-	file, err := ioutil.TempFile("", "psqlKubeDeploy")
+	file, err := ioutil.TempFile("", "hippoKubeDeploy")
 	if err != nil {
 		return file, err
 	}

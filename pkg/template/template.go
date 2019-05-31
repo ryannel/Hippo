@@ -174,7 +174,7 @@ spec:
   type: ClusterIP`
 
 	template = strings.Replace(template, "{dockerRegistryUrl}", dockerRegistryUrl, -1)
-	return strings.Replace(template, "{projectname}", projectName, -1)
+	return strings.Replace(template, "{projectname}", strings.ToLower(projectName), -1)
 }
 
 func GoDockerFile(projectName string) string {

@@ -18,7 +18,7 @@ func Build() error {
 		return err
 	}
 
-	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.Namespace, config.Docker.RegistryRepository)
+	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.Namespace)
 
 	imageName := generateDockerImageName(registryUrl, config.ProjectName)
 

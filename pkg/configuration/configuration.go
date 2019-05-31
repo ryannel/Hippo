@@ -38,7 +38,6 @@ func newFromPath(path string) (Configuration, error) {
 	}
 
 	config, err := mergeConfigs(configPaths)
-	parentConfig = config
 	return config, err
 }
 
@@ -82,7 +81,7 @@ func mergeConfigs(configPaths []string) (Configuration, error) {
 			return Configuration{}, err
 		}
 
-		if numConfigs == len(configPaths)-1 {
+		if numConfigs == 2 {
 			parentConfig = baseConfig
 		}
 
@@ -120,68 +119,70 @@ type Configuration struct {
 }
 
 func (config *Configuration) SaveConfig() error {
-	if config.ProjectName == parentConfig.ProjectName {
-		config.ProjectName = ""
+	currentConfig := *config
+
+	if currentConfig.ProjectName == parentConfig.ProjectName {
+		currentConfig.ProjectName = ""
 	}
 
-	if config.Language == parentConfig.Language {
-		config.Language = ""
+	if currentConfig.Language == parentConfig.Language {
+		currentConfig.Language = ""
 	}
 
-	if config.Docker.RegistryName == parentConfig.Docker.RegistryName {
-		config.Docker.RegistryName = ""
+	if currentConfig.Docker.RegistryName == parentConfig.Docker.RegistryName {
+		currentConfig.Docker.RegistryName = ""
 	}
 
-	if config.Docker.RegistryDomain == parentConfig.Docker.RegistryDomain {
-		config.Docker.RegistryDomain = ""
+	if currentConfig.Docker.RegistryDomain == parentConfig.Docker.RegistryDomain {
+		currentConfig.Docker.RegistryDomain = ""
 	}
 
-	if config.Docker.RegistryRepository == parentConfig.Docker.RegistryRepository {
-		config.Docker.RegistryRepository = ""
+	if currentConfig.Docker.RegistryRepository == parentConfig.Docker.RegistryRepository {
+		currentConfig.Docker.RegistryRepository = ""
 	}
 
-	if config.Docker.Namespace == parentConfig.Docker.Namespace {
-		config.Docker.Namespace = ""
+	if currentConfig.Docker.Namespace == parentConfig.Docker.Namespace {
+		currentConfig.Docker.Namespace = ""
 	}
 
-	if config.Docker.RegistryUser == parentConfig.Docker.RegistryUser {
-		config.Docker.RegistryUser = ""
+	if currentConfig.Docker.RegistryUser == parentConfig.Docker.RegistryUser {
+		currentConfig.Docker.RegistryUser = ""
 	}
 
-	if config.Docker.RegistryPassword == parentConfig.Docker.RegistryPassword {
-		config.Docker.RegistryPassword = ""
+	if currentConfig.Docker.RegistryPassword == parentConfig.Docker.RegistryPassword {
+		currentConfig.Docker.RegistryPassword = ""
 	}
 
-	if config.VersionControl.Provider == parentConfig.VersionControl.Provider {
-		config.VersionControl.Provider = ""
+	if currentConfig.VersionControl.Provider == parentConfig.VersionControl.Provider {
+		currentConfig.VersionControl.Provider = ""
 	}
 
-	if config.VersionControl.NameSpace == parentConfig.VersionControl.NameSpace {
-		config.VersionControl.NameSpace = ""
+	if currentConfig.VersionControl.NameSpace == parentConfig.VersionControl.NameSpace {
+		currentConfig.VersionControl.NameSpace = ""
 	}
 
-	if config.VersionControl.Project == parentConfig.VersionControl.Project {
-		config.VersionControl.Project = ""
+	if currentConfig.VersionControl.Project == parentConfig.VersionControl.Project {
+		currentConfig.VersionControl.Project = ""
 	}
 
-	if config.VersionControl.Repository == parentConfig.VersionControl.Repository {
-		config.VersionControl.Repository = ""
+	if currentConfig.VersionControl.Repository == parentConfig.VersionControl.Repository {
+		currentConfig.VersionControl.Repository = ""
 	}
 
-	if config.VersionControl.Username == parentConfig.VersionControl.Username {
-		config.VersionControl.Username = ""
+	if currentConfig.VersionControl.Username == parentConfig.VersionControl.Username {
+		currentConfig.VersionControl.Username = ""
 	}
 
-	if config.VersionControl.Password == parentConfig.VersionControl.Password {
-		config.VersionControl.Password = ""
+	if currentConfig.VersionControl.Password == parentConfig.VersionControl.Password {
+		currentConfig.VersionControl.Password = ""
 	}
 
-	configYaml, err := yaml.Marshal(config)
+	configYaml, err := yaml.Marshal(currentConfig)
 	if err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(config.configPath, configYaml, 0644)
+	return ioutil.WriteFile(currentConfig.configPath, configYaml, 0644)
 }
 
 func parseConfig(configPath string) (Configuration, error) {

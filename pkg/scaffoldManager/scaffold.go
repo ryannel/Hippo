@@ -16,7 +16,7 @@ func New(projectName string, projectFolderPath string, language string) (scaffol
 		return scaffold{}, errors.New("unable to access project folder: " + projectFolderPath)
 	}
 
-	languageScaffold, err := selectLanguageScaffold(language)
+	languageScaffold, err := getLanguageScaffold(language)
 	if err != nil {
 		return scaffold{}, err
 	}
@@ -87,7 +87,7 @@ func (scaffold scaffold) CreateDeploymentFile(dockerRegistryUrl string) error {
 	return util.CreateFile(deploymentFilePath, "deploy.yaml", deployYaml)
 }
 
-func selectLanguageScaffold(language string) (languageScaffold, error) {
+func getLanguageScaffold(language string) (languageScaffold, error) {
 	var scaffold languageScaffold
 
 	switch language {
