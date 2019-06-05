@@ -5,4 +5,5 @@ const (
 	Db             = "db"
 	Kubernetes     = "kubernetes"
 	VersionControl = "VersionControl"
+	Rabbit         = "rabbit"
 )

@@ -30,12 +30,12 @@ func SetupLocalDb() error {
 		return err
 	}
 
-	err = createDevDb(psql, config.ProjectName)
+	err = createDbUser(psql, config.ProjectName)
 	if err != nil {
 		log.Print(err)
 	}
 
-	err = createDbUser(psql, config.ProjectName)
+	err = createDevDb(psql, config.ProjectName)
 	if err != nil {
 		log.Print(err)
 	}
@@ -49,7 +49,7 @@ func SetupLocalDb() error {
 	return nil
 }
 
-func createK8LocalInstance()(kubernetes.Kubernetes, error) {
+func createK8LocalInstance() (kubernetes.Kubernetes, error) {
 	k8, err := kubernetes.New("--context docker-for-desktop --namespace default")
 	if err != nil {
 		return kubernetes.Kubernetes{}, err
@@ -100,11 +100,11 @@ func createDbUser(psql postgresql.Postgresql, projectName string) error {
 
 func setDevDbSecret(k8 kubernetes.Kubernetes, projectName string) error {
 	log.Print("Creating Dev DB Secret `" + projectName + "`")
-	secretName := projectName
+	secretName := projectName + "-db"
 	secrets := map[string]string{
-		"POSTGRES_HOST":     projectName,
-		"POSTGRES_DB":       projectName,
-		"POSTGRES_USER":     projectName,
+		"POSTGRES_HOST":     "postgresql",
+		"POSTGRES_DBNAME":   projectName,
+		"POSTGRES_USERNAME": projectName,
 		"POSTGRES_PASSWORD": projectName,
 	}
 
