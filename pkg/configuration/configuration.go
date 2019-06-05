@@ -23,12 +23,7 @@ func New() (Configuration, error) {
 		return Configuration{}, err
 	}
 
-	config, err := mergeConfigs(configPaths)
-	if err != nil {
-		return Configuration{}, err
-	}
-
-	return config, err
+	return mergeConfigs(configPaths)
 }
 
 func newFromPath(path string) (Configuration, error) {
@@ -37,8 +32,7 @@ func newFromPath(path string) (Configuration, error) {
 		return Configuration{}, err
 	}
 
-	config, err := mergeConfigs(configPaths)
-	return config, err
+	return mergeConfigs(configPaths)
 }
 
 func walkConfigsFromPath(currentDir string) ([]string, error) {
@@ -69,7 +63,7 @@ func mergeConfigs(configPaths []string) (Configuration, error) {
 	numConfigs := len(configPaths)
 	for numConfigs > 0 {
 		configPath := configPaths[numConfigs-1]
-		baseConfig.configPath = configPath
+		baseConfig.ConfigPath = configPath
 
 		dirConfig, err := parseConfig(configPath)
 		if err != nil {
@@ -92,7 +86,7 @@ func mergeConfigs(configPaths []string) (Configuration, error) {
 }
 
 type Configuration struct {
-	configPath  string
+	ConfigPath  string
 	ProjectName string `yaml:"ProjectName,omitempty"`
 	Language    string `yaml:"Language,omitempty"`
 	Docker      struct {
@@ -182,7 +176,7 @@ func (config *Configuration) SaveConfig() error {
 		return err
 	}
 
-	return ioutil.WriteFile(currentConfig.configPath, configYaml, 0644)
+	return ioutil.WriteFile(currentConfig.ConfigPath, configYaml, 0644)
 }
 
 func parseConfig(configPath string) (Configuration, error) {

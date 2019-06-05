@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"errors"
 	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/docker"
 	"github.com/ryannel/hippo/pkg/enum/dockerRegistries"
@@ -14,7 +15,30 @@ func Docker(projectFolderPath string) error {
 		return err
 	}
 
-	scaffold, err := scaffoldManager.New(config.ProjectName, projectFolderPath, config.Language)
+	if config.ConfigPath == "" {
+		return errors.New("no hippo.yaml found in path. Please run `hippo configure`")
+	}
+
+	err = DockerFiles(config.ProjectName, projectFolderPath, config.Language)
+	if err != nil {
+		return err
+	}
+
+	_, err = DockerConfig(config)
+	if err != nil {
+		return err
+	}
+
+	err =  config.SaveConfig()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DockerFiles(projectName string, projectFolderPath string, language string) error {
+	scaffold, err := scaffoldManager.New(projectName, projectFolderPath, language)
 	if err != nil {
 		return err
 	}
@@ -29,22 +53,26 @@ func Docker(projectFolderPath string) error {
 		return err
 	}
 
+	return nil
+}
+
+func DockerConfig(config configuration.Configuration) (configuration.Configuration, error) {
 	registryName := config.Docker.RegistryName
 	if registryName == "" {
-		registryName, err = util.PromptSelect("Docker Registry", []string{dockerRegistries.QuayIo, "None"})
+		registryName, err := util.PromptSelect("Docker Registry", []string{dockerRegistries.QuayIo, "None"})
 		if err != nil {
-			return err
+			return configuration.Configuration{}, err
 		}
 		config.Docker.RegistryName = registryName
 		config.Docker.RegistryDomain = docker.GetRegistryDomain(registryName)
 	}
 
 	if registryName == "None" {
-		err = config.SaveConfig()
+		err := config.SaveConfig()
 		if err != nil {
-			return err
+			return configuration.Configuration{}, err
 		}
-		return nil
+		return configuration.Configuration{}, nil
 	}
 
 	if config.Docker.RegistryRepository == "" {
@@ -54,7 +82,7 @@ func Docker(projectFolderPath string) error {
 	if config.Docker.Namespace == "" {
 		registryNamespace, err := util.PromptString("Docker Registry Namespace")
 		if err != nil {
-			return err
+			return configuration.Configuration{}, err
 		}
 		config.Docker.Namespace = registryNamespace
 	}
@@ -62,7 +90,7 @@ func Docker(projectFolderPath string) error {
 	if config.Docker.RegistryUser == "" {
 		registryUser, err := util.PromptString("Docker Registry Username")
 		if err != nil {
-			return err
+			return configuration.Configuration{}, err
 		}
 		config.Docker.RegistryUser = registryUser
 	}
@@ -70,15 +98,10 @@ func Docker(projectFolderPath string) error {
 	if config.Docker.RegistryPassword == "" {
 		registryPassword, err := util.PromptPassword("Docker Registry Password")
 		if err != nil {
-			return err
+			return configuration.Configuration{}, err
 		}
 		config.Docker.RegistryPassword = registryPassword
 	}
 
-	err = config.SaveConfig()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return config, nil
 }

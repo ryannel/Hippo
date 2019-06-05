@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"errors"
+	"github.com/ryannel/hippo/internal/configure"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 func init() {
@@ -11,24 +13,21 @@ func init() {
 
 var configureCmd = &cobra.Command{
 	Use:   "configure",
-	Short: "creates configuration files for the current directory",
-	Long:  `creates configuration files for the current directory
-
-Some usage examples.
-`,
+	Short: "creates configuration files for the current project",
+	Long:  `creates configuration files for the current project`,
+	Example: `hippo configure`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) > 0 {
+		if len(args) != 0 {
 			return errors.New("configure takes no arguments")
 		}
 
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		panic("Not implemented")
-		//err := environment.GenerateConfig()
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
+		err := configure.Configure()
+		if err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 

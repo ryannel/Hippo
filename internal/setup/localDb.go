@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"errors"
 	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/kubernetes"
 	"github.com/ryannel/hippo/pkg/postgresql"
@@ -12,6 +13,10 @@ func SetupLocalDb() error {
 	config, err := configuration.New()
 	if err != nil {
 		return err
+	}
+
+	if config.ConfigPath == "" {
+		return errors.New("no hippo.yaml found in path. Please run `hippo configure`")
 	}
 
 	k8, err := createK8LocalInstance()

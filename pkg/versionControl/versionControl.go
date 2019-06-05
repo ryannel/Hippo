@@ -3,6 +3,7 @@ package versionControl
 import (
 	"errors"
 	"github.com/ryannel/hippo/pkg/enum/versionControlProviders"
+	"github.com/ryannel/hippo/pkg/hostingProviders/azure"
 	"github.com/ryannel/hippo/pkg/util"
 	"log"
 	"os/exec"
@@ -24,7 +25,7 @@ func getProvider(provider string, namespace string, project string, repository s
 	var err error
 
 	switch provider {
-	case versionControlProviders.Azure: hostProvider = &azureProvider{namespace, project, repository, username, password}
+	case versionControlProviders.Azure: hostProvider = &azure.Provider{namespace, project, repository, username, password}
 	default: err = errors.New("Unknown provider: " + provider)
 	}
 
@@ -42,8 +43,8 @@ type VersionControl struct {
 }
 
 type hostProvider interface {
-	createRepository() error
-	getRepositoryUrl() string
+	CreateRepository() error
+	GetRepositoryUrl() string
 }
 
 func (vcs *VersionControl) Init() error {
@@ -111,7 +112,7 @@ func (vcs *VersionControl) GetCommit() (string, error) {
 }
 
 func (vcs *VersionControl) CreateRepository() error {
-	return vcs.hostProvider.createRepository()
+	return vcs.hostProvider.CreateRepository()
 }
 
 func (vcs *VersionControl) SetOrigin() error {
@@ -120,7 +121,7 @@ func (vcs *VersionControl) SetOrigin() error {
 		return err
 	}
 
-	command := "git remote add origin " + vcs.hostProvider.getRepositoryUrl()
+	command := "git remote add origin " + vcs.hostProvider.GetRepositoryUrl()
 	log.Print("Adding Git Origin: " + command)
 	_, err = util.ExecStringCommand(command)
 	return err

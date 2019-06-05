@@ -66,6 +66,14 @@ func PromptSelect(label string, items []string) (string, error) {
 
 func CreateFile(folder string, fileName string, content string) error {
 	fileName = filepath.Join(folder, fileName)
+
+	exists, err := PathExists(fileName)
+	if exists {
+		log.Print(fileName + " already exists")
+	} else if err != nil{
+		return err
+	}
+
 	file, err := os.Create(fileName)
 	if err != nil {
 		return  err

@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"errors"
 	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/enum/versionControlProviders"
 	"github.com/ryannel/hippo/pkg/util"
@@ -8,7 +9,21 @@ import (
 )
 
 func VersionControl() error {
-	config, err := populateConfig()
+	config, err := configuration.New()
+	if err != nil {
+		return err
+	}
+
+	if config.ConfigPath == "" {
+		return errors.New("no hippo.yaml found in path. Please run `hippo configure`")
+	}
+	
+	config, err = VersionControlConfig(config)
+	if err != nil {
+		return err
+	}
+
+	err =  config.SaveConfig()
 	if err != nil {
 		return err
 	}
@@ -46,12 +61,7 @@ func VersionControl() error {
 	return nil
 }
 
-func populateConfig() (configuration.Configuration, error) {
-	config, err := configuration.New()
-	if err != nil {
-		return configuration.Configuration{}, err
-	}
-
+func VersionControlConfig(config configuration.Configuration) (configuration.Configuration, error) {
 	if config.VersionControl.Provider == "" {
 		vcProvider, err := util.PromptSelect("Version Control Provider", []string{versionControlProviders.Azure, versionControlProviders.Git})
 		if err != nil {
@@ -92,11 +102,6 @@ func populateConfig() (configuration.Configuration, error) {
 			return configuration.Configuration{}, err
 		}
 		config.VersionControl.Password = vcPassword
-	}
-
-	err =  config.SaveConfig()
-	if err != nil {
-		return configuration.Configuration{}, err
 	}
 
 	return config, nil

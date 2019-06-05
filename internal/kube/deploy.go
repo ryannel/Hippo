@@ -32,6 +32,10 @@ func Deploy(envName string) error {
 		return err
 	}
 
+	if config.ConfigPath == "" {
+		return errors.New("no hippo.yaml found in path. Please run `hippo configure`")
+	}
+
 	kubeEnv := config.KubernetesContexts[envName]
 	if len(kubeEnv) == 0 {
 		return errors.New("not a valid kubernetes context. Please ensure the context name exists in hippo.yaml. Run `hippo setup kubernetes` to configure")

@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"errors"
 	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/docker"
 	"github.com/ryannel/hippo/pkg/versionControl"
@@ -16,6 +17,10 @@ func Push() error {
 	config, err := configuration.New()
 	if err != nil {
 		return err
+	}
+
+	if config.ConfigPath == "" {
+		return errors.New("no hippo.yaml found in path. Please run `hippo configure`")
 	}
 
 	vcs, err := versionControl.New(config.VersionControl.Provider, config.VersionControl.NameSpace, config.VersionControl.Project, config.VersionControl.Repository, config.VersionControl.Username, config.VersionControl.Password)

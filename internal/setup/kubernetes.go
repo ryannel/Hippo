@@ -14,26 +14,18 @@ func Kubernetes(wd string) error {
 		return err
 	}
 
-	if config.Docker.RegistryDomain == "" {
-		return errors.New("docker registry not configured. Please run `hippo setup docker` to configure")
+	if config.ConfigPath == "" {
+		return errors.New("no hippo.yaml found in path. Please run `hippo configure`")
 	}
 
-	for util.PromptYN("Add Kubernetes Environment?") {
-		key, err := util.PromptString("Context name")
-		if err != nil {
-			return err
-		}
+	config, err = KubernetesConfig(config)
+	if err != nil {
+		return err
+	}
 
-		value, err := util.PromptString("Kubectl Context, eg: --context docker-for-desktop --namespace default ")
-		if err != nil {
-			return err
-		}
-
-		config.KubernetesContexts[key] = value
-		err = config.SaveConfig()
-		if err != nil {
-			return err
-		}
+	err =  config.SaveConfig()
+	if err != nil {
+		return err
 	}
 
 	scaffold, err := scaffoldManager.New(config.ProjectName, wd, config.Language)
@@ -48,4 +40,26 @@ func Kubernetes(wd string) error {
 	}
 
 	return nil
+}
+
+func KubernetesConfig(config configuration.Configuration) (configuration.Configuration, error) {
+	if config.Docker.RegistryDomain == "" {
+		return configuration.Configuration{}, errors.New("docker registry not configured. Please run `hippo setup docker` to configure")
+	}
+
+	for util.PromptYN("Add Kubernetes Environment?") {
+		key, err := util.PromptString("Context name")
+		if err != nil {
+			return configuration.Configuration{}, err
+		}
+
+		value, err := util.PromptString("Kubectl Context, eg: --context docker-for-desktop --namespace default ")
+		if err != nil {
+			return configuration.Configuration{}, err
+		}
+
+		config.KubernetesContexts[key] = value
+	}
+
+	return config, nil
 }

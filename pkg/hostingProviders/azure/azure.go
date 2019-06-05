@@ -1,4 +1,4 @@
-package versionControl
+package azure
 
 import (
 	"bytes"
@@ -8,16 +8,16 @@ import (
 	"net/http"
 )
 
-type azureProvider struct {
-	namespace  string
-	project    string
-	repository string
-	username   string
-	password   string
+type Provider struct {
+	Namespace  string
+	Project    string
+	Repository string
+	Username   string
+	Password   string
 }
 
-func (azure *azureProvider) createRepository() error {
-	url := "https://dev.azure.com/" + azure.namespace + "/" + azure.project + "/_apis/git/repositories?api-version=5.0"
+func (azure *Provider) CreateRepository() error {
+	url := "https://dev.azure.com/" + azure.Namespace + "/" + azure.Project + "/_apis/git/repositories?api-version=5.0"
 	log.Print("Creating remote repository: ")
 
 	type projectObject struct {
@@ -35,7 +35,7 @@ func (azure *azureProvider) createRepository() error {
 	}
 
 	request := requestObject{
-		Name: azure.repository,
+		Name: azure.Repository,
 		Project: projectObject{
 			projectId,
 		},
@@ -51,21 +51,35 @@ func (azure *azureProvider) createRepository() error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(azure.username, azure.password)
+	req.SetBasicAuth(azure.Username, azure.Password)
 
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
 		return err
 	}
-	if response.StatusCode != 201 {
-		return errors.New(response.Status)
+
+	switch response.StatusCode {
+	case 409: err = errors.New("409: repository already exist")
+	case 201: err = errors.New(response.Status)
+	default: err = nil
 	}
 
-	return nil
+	return err
 }
 
-func (azure *azureProvider) getProjectId() (string, error) {
+//func (azure *Provider) CreateBuildPipeline() error {
+//	type requestObject struct {
+//		authoredBy struct {
+//
+//		}
+//	}
+//
+//	url := "POST https://dev.azure.com/"+azure.Namespace+"/"+azure.Project+"/_apis/build/definitions?api-version=5.0"
+//	return nil
+//}
+
+func (azure *Provider) getProjectId() (string, error) {
 	type projectInfoObject struct {
 		Id          string `json:"id"`
 		Name        string `json:"name"`
@@ -93,13 +107,13 @@ func (azure *azureProvider) getProjectId() (string, error) {
 		LastUpdateTime string `json:"lastUpdateTime"`
 	}
 
-	url := "https://dev.azure.com/" + azure.namespace + "/_apis/projects/" + azure.project + "?api-version=5.0"
+	url := "https://dev.azure.com/" + azure.Namespace + "/_apis/projects/" + azure.Project + "?api-version=5.0"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(azure.username, azure.password)
+	req.SetBasicAuth(azure.Username, azure.Password)
 
 	client := &http.Client{}
 	response, err := client.Do(req)
@@ -117,6 +131,6 @@ func (azure *azureProvider) getProjectId() (string, error) {
 	return projectInfo.Id, nil
 }
 
-func (azure *azureProvider) getRepositoryUrl() string {
-	return "http://" + azure.namespace + ".visualstudio.com/" + azure.project + "/_git/" + azure.repository
+func (azure *Provider) GetRepositoryUrl() string {
+	return "http://" + azure.Namespace + ".visualstudio.com/" + azure.Project + "/_git/" + azure.Repository
 }
