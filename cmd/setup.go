@@ -16,7 +16,9 @@ func init() {
 	setupCmd.AddCommand(setupLocalDbCmd)
 	setupCmd.AddCommand(setupKubernetesCmd)
 	setupCmd.AddCommand(setupVersionControlCmd)
+	setupCmd.AddCommand(setupLocalRabbitMQCmd)
 	rootCmd.AddCommand(setupCmd)
+
 }
 
 var setupCmd = &cobra.Command{
@@ -88,6 +90,26 @@ Some usage examples.
 		util.HandleFatalError(err)
 
 		log.Print(componentEnum.Db + " component has been created")
+	},
+}
+var setupLocalRabbitMQCmd = &cobra.Command{
+	Use:   "localrabbit",
+	Short: "creates a rabbit mq instance in kubernetes and assigns login secrets",
+	Long: `creates a rabbit mq instance in kubernetes and assigns login secrets
+
+Some usage examples.
+`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 0 {
+			return errors.New("setup localrabbit takes no arguments")
+		}
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		err := setup.SetupLocalRabbit()
+		util.HandleFatalError(err)
+
+		log.Print(componentEnum.Rabbit + " component has been created")
 	},
 }
 

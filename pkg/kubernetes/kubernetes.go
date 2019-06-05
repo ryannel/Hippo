@@ -52,11 +52,11 @@ func (k8 *Kubernetes) Apply(deployYaml string) error {
 	return err
 }
 
-func (k8 *Kubernetes) CreateSecret(secretName string , secrets map[string]string) error {
+func (k8 *Kubernetes) CreateSecret(secretName string, secrets map[string]string) error {
 	command := k8.command + " create secret generic " + secretName
 
 	for name, value := range secrets {
-		command = command + " --from-literal=" + name + "="+`"` + value + `"`
+		command = command + " --from-literal=" + name + "=" + value
 	}
 
 	log.Print("Creating Secrets: " + command)
@@ -71,7 +71,7 @@ func (k8 *Kubernetes) DeleteSecret(secretName string) error {
 	return err
 }
 
-func createTmpFile(deployYaml string) (*os.File, error){
+func createTmpFile(deployYaml string) (*os.File, error) {
 	file, err := ioutil.TempFile("", "hippoKubeDeploy")
 	if err != nil {
 		return file, err
@@ -85,7 +85,7 @@ func createTmpFile(deployYaml string) (*os.File, error){
 	return file, nil
 }
 
-func getKubectlCommand() (string, error){
+func getKubectlCommand() (string, error) {
 	_, err := exec.LookPath("kubectl")
 	if err == nil {
 		return "kubectl", nil
@@ -98,4 +98,3 @@ func getKubectlCommand() (string, error){
 
 	return "", errors.New("kubectl command not found")
 }
-

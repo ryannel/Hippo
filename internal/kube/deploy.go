@@ -58,9 +58,9 @@ func Deploy(envName string) error {
 	}
 	deployYaml := string(template)
 
-	log.Print("Setting deploy.yaml {commit} to: " + commitTag)
-	deployYaml = strings.Replace(deployYaml, "{commit}", commitTag, -1)
-	deployYaml = strings.Replace(deployYaml, "{timestamp}", time.Now().Format(time.RFC3339), -1)
+	log.Print("Setting deploy.yaml ${COMMIT} to: " + commitTag)
+	deployYaml = strings.Replace(deployYaml, "${COMMIT}", commitTag, -1)
+	deployYaml = strings.Replace(deployYaml, "${TIMESTAMP}", time.Now().Format(time.RFC3339), -1)
 
 	return k8.Apply(deployYaml)
 }
