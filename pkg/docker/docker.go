@@ -1,8 +1,8 @@
 package docker
 
 import (
+	"github.com/ryannel/hippo/pkg/logger"
 	"github.com/ryannel/hippo/pkg/util"
-	"log"
 	"strings"
 )
 
@@ -16,7 +16,7 @@ func Build(imageName string, commitTag string) error {
 	}
 
 	command := strings.ToLower(`docker build --pull --shm-size 256m --memory=3g --memory-swap=-1 ` + commitTag + `.`)
-	log.Print("Building Docker image: " + command)
+	logger.Command("Building Docker image: " + command)
 	return execCommandStreamingOut(command)
 }
 
@@ -25,25 +25,31 @@ func Tag(sourceImage string, sourceTag string, targetImage string, targetTag str
 	targetTag = generateTag(targetImage, targetTag)
 
 	command := strings.ToLower("docker tag " + sourceTag + " " + targetTag)
-	log.Print("Tagging image : " + command)
-	_, err := execStringCommand(command)
-
+	logger.Command("Tagging image : " + command)
+	result, err := execStringCommand(command)
+	if err != nil {
+		return err
+	}
+	logger.Log(result)
 	return err
 }
 
 func Push(registryUrl string, imageName string, tag string) error {
 	tag = generateTag(imageName, tag)
 	command := strings.ToLower("docker push " + registryUrl + "/" + tag)
-	log.Print("Pushing docker image: " + command)
+	logger.Command("Pushing docker image: " + command)
 	err := execCommandStreamingOut(command)
 	return err
 }
 
 func Login(registryUrl string, username string, password string) error {
 	command := "docker login -u " + username + " -p " + password + " " + registryUrl
-	log.Print("Logging into docker registry: docker login -u " + username + " -p <password> " + registryUrl)
-	_, err := execStringCommand(command)
-
+	logger.Command("Logging into docker registry: docker login -u " + username + " -p <password> " + registryUrl)
+	result, err := execStringCommand(command)
+	if err != nil {
+		return err
+	}
+	logger.Log(result)
 	return err
 }
 

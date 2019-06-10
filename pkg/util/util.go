@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"github.com/manifoldco/promptui"
+	"github.com/ryannel/hippo/pkg/logger"
 	"log"
 	"os"
 	"os/exec"
@@ -108,8 +109,8 @@ func ExecCommandStreamingOut(command string) error {
 
 	scanner := bufio.NewScanner(stdOut)
 	for scanner.Scan() {
-		m := scanner.Text()
-		log.Print(m)
+		message := scanner.Text()
+		logger.Log(message)
 	}
 
 	scanner = bufio.NewScanner(stderr)

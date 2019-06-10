@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/ryannel/hippo/pkg/enum/versionControlProviders"
 	"github.com/ryannel/hippo/pkg/hostingProviders/azure"
+	"github.com/ryannel/hippo/pkg/logger"
 	"github.com/ryannel/hippo/pkg/util"
-	"log"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -49,8 +49,12 @@ type hostProvider interface {
 
 func (vcs *VersionControl) Init() error {
 	command := "git init"
-	log.Print("Creating Git repo: " + command)
-	_, err := util.ExecStringCommand(command)
+	logger.Command("Creating Git repo: " + command)
+	result, err := util.ExecStringCommand(command)
+	if err != nil {
+		return err
+	}
+	logger.Log(result)
 	return err
 }
 
@@ -75,11 +79,12 @@ func (vcs *VersionControl) GetBranch() (string, error) {
 	}
 
 	command := "git rev-parse --abbrev-ref HEAD"
-	log.Print("Getting branch name: " + command)
+	logger.Command("Getting branch name: " + command)
 	branch, err := util.ExecStringCommand(command)
 	if err != nil {
 		return "", err
 	}
+	logger.Log("Branch detected: " + branch)
 
 	return util.StripNewLine(branch), nil
 }
@@ -102,11 +107,12 @@ func (vcs *VersionControl) GetCommit() (string, error) {
 	}
 
 	command := "git rev-parse HEAD"
-	log.Print("Getting Commit: " + command)
+	logger.Command("Getting Commit: " + command)
 	commit, err := util.ExecStringCommand(command)
 	if err != nil {
 		return "", err
 	}
+	logger.Log("Commit detected: " + commit)
 
 	return util.StripNewLine(commit), nil
 }
@@ -122,8 +128,12 @@ func (vcs *VersionControl) SetOrigin() error {
 	}
 
 	command := "git remote add origin " + vcs.hostProvider.GetRepositoryUrl()
-	log.Print("Adding Git Origin: " + command)
-	_, err = util.ExecStringCommand(command)
+	logger.Command("Adding Git Origin: " + command)
+	result, err := util.ExecStringCommand(command)
+	if err != nil {
+		return err
+	}
+	logger.Log(result)
 	return err
 }
 
@@ -134,8 +144,12 @@ func (vcs *VersionControl) CreateCommit(message string) error {
 	}
 
 	command := `git commit -m "` + message + `"`
-	log.Print("Creating Git commit: " + command)
-	_, err = exec.Command("git", "commit", "-m", `"`+message+`"`).Output()
+	logger.Command("Creating Git commit: " + command)
+	result, err := exec.Command("git", "commit", "-m", `"`+message+`"`).Output()
+	if err != nil {
+		return err
+	}
+	logger.Log(string(result))
 	return err
 }
 
@@ -146,7 +160,11 @@ func (vcs *VersionControl) TrackAllFiles() error {
 	}
 
 	command := "git add ."
-	log.Print("Add all files to tracking: " + command)
-	_, err = util.ExecStringCommand(command)
+	logger.Command("Add all files to tracking: " + command)
+	result, err := util.ExecStringCommand(command)
+	if err != nil {
+		return err
+	}
+	logger.Log(result)
 	return err
 }

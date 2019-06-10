@@ -4,9 +4,9 @@ import (
 	"errors"
 	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/kubernetes"
+	"github.com/ryannel/hippo/pkg/logger"
 	"github.com/ryannel/hippo/pkg/postgresql"
 	"github.com/ryannel/hippo/pkg/template"
-	"log"
 )
 
 func SetupLocalDb() error {
@@ -29,7 +29,6 @@ func SetupLocalDb() error {
 		return err
 	}
 
-	log.Print()
 	psql, err := connectToPsql()
 	if err != nil {
 		return err
@@ -37,15 +36,14 @@ func SetupLocalDb() error {
 
 	err = createDbUser(psql, config.ProjectName)
 	if err != nil {
-		log.Print(err)
+		logger.Warn(err.Error())
 	}
 
 	err = createDevDb(psql, config.ProjectName)
 	if err != nil {
-		log.Print(err)
+		logger.Warn(err.Error())
 	}
 
-	log.Print()
 	err = setDevDbSecret(k8, config.ProjectName)
 	if err != nil {
 		return err
@@ -65,13 +63,13 @@ func createK8LocalInstance() (kubernetes.Kubernetes, error) {
 func createPostgresContainer(k8 kubernetes.Kubernetes) error {
 	psqlTemplate := template.PostgresDeployYaml("postgres", "postgres", "postgres")
 
-	log.Print("Creating Postgresql kubernetes instance")
+	logger.Command("Creating Postgresql kubernetes instance")
 	err := k8.Apply(psqlTemplate)
 	if err != nil {
 		return err
 	}
 
-	log.Print("Creating Root DB Secret `shared-postgres`")
+	logger.Command("Creating Root DB Secret `shared-postgres`")
 	secretName := "shared-postgres"
 	secrets := map[string]string{
 		"POSTGRES_HOST":     "postgres",
@@ -85,7 +83,7 @@ func createPostgresContainer(k8 kubernetes.Kubernetes) error {
 }
 
 func connectToPsql() (postgresql.Postgresql, error) {
-	log.Print("Connecting to DB instance")
+	logger.Command("Connecting to DB instance")
 	psql, err := postgresql.New("localhost", 5432, "postgres", "postgres", "postgres")
 	if err != nil {
 		return postgresql.Postgresql{}, err
@@ -94,17 +92,17 @@ func connectToPsql() (postgresql.Postgresql, error) {
 }
 
 func createDevDb(psql postgresql.Postgresql, projectName string) error {
-	log.Print("Creating dev db: `" + projectName + "` with owner `" + projectName + "`")
+	logger.Command("Creating dev db: `" + projectName + "` with owner `" + projectName + "`")
 	return psql.CreateDb(projectName, projectName)
 }
 
 func createDbUser(psql postgresql.Postgresql, projectName string) error {
-	log.Print("Creating dev user: `" + projectName + "` with password `" + projectName + "`")
+	logger.Command("Creating dev user: `" + projectName + "` with password `" + projectName + "`")
 	return psql.CreateUser(projectName, projectName)
 }
 
 func setDevDbSecret(k8 kubernetes.Kubernetes, projectName string) error {
-	log.Print("Creating Dev DB Secret `" + projectName + "`")
+	logger.Command("Creating Dev DB Secret `" + projectName + "`")
 	secretName := projectName + "-db"
 	secrets := map[string]string{
 		"POSTGRES_HOST":     "postgresql",

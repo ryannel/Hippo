@@ -2,9 +2,9 @@ package kubernetes
 
 import (
 	"errors"
+	"github.com/ryannel/hippo/pkg/logger"
 	"github.com/ryannel/hippo/pkg/util"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 )
@@ -24,7 +24,7 @@ type Kubernetes struct {
 
 func (k8 *Kubernetes) GetPodName(appName string) (string, error) {
 	command := k8.command + ` get pods --selector app=` + appName + ` --output jsonpath={.items..metadata.name}`
-	log.Print("Getting pod name: " + command)
+	logger.Command("Getting pod name: " + command)
 
 	podName, err := util.ExecStringCommand(command)
 	if err != nil {
@@ -41,10 +41,10 @@ func (k8 *Kubernetes) Apply(deployYaml string) error {
 	}
 
 	command := k8.command + " apply -f " + file.Name()
-	log.Print("Applying Yaml file: " + command)
+	logger.Command("Applying Yaml file: " + command)
 
 	result, err := util.ExecStringCommand(command)
-	log.Print(result)
+	logger.Log(result)
 
 	_ = file.Close()
 	_ = os.Remove(file.Name())
@@ -59,16 +59,24 @@ func (k8 *Kubernetes) CreateSecret(secretName string, secrets map[string]string)
 		command = command + " --from-literal=" + name + "=" + value
 	}
 
-	log.Print("Creating Secrets: " + command)
-	_, err := util.ExecStringCommand(command)
-	return err
+	logger.Command("Creating Secrets: " + command)
+	result, err := util.ExecStringCommand(command)
+	if err != nil {
+		return err
+	}
+	logger.Log(result)
+	return nil
 }
 
 func (k8 *Kubernetes) DeleteSecret(secretName string) error {
 	command := k8.command + " delete secret " + secretName
-	log.Print("Deleting Secret if Exists: " + command)
-	_, err := util.ExecStringCommand(command)
-	return err
+	logger.Command("Deleting Secret if Exists: " + command)
+	result, err := util.ExecStringCommand(command)
+	if err != nil {
+		return err
+	}
+	logger.Log(result)
+	return nil
 }
 
 func createTmpFile(deployYaml string) (*os.File, error) {
