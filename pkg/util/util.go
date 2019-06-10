@@ -141,9 +141,11 @@ func HandleFatalError(err error) {
 		exitError, isExitError := err.(*exec.ExitError)
 		if isExitError {
 			log.Print(string(exitError.Stderr))
+			logger.Error(string(exitError.Stderr))
 		}
-		log.Fatal(err)
+		logger.Error(err.Error())
 	}
+	os.Exit(1)
 }
 
 func PathExists(path string) (bool, error) {

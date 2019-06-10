@@ -82,7 +82,7 @@ func (vcs *VersionControl) GetBranch() (string, error) {
 	logger.Command("Getting branch name: " + command)
 	branch, err := util.ExecStringCommand(command)
 	if err != nil {
-		return "", err
+		return branch, err
 	}
 	logger.Log("Branch detected: " + branch)
 
@@ -92,7 +92,7 @@ func (vcs *VersionControl) GetBranch() (string, error) {
 func (vcs *VersionControl) GetBranchReplaceSlash() (string, error) {
 	branch, err := vcs.GetBranch()
 	if err != nil {
-		return "", err
+		return branch, err
 	}
 
 	branch = strings.Replace(branch, "/", "_", -1)
@@ -131,7 +131,7 @@ func (vcs *VersionControl) SetOrigin() error {
 	logger.Command("Adding Git Origin: " + command)
 	result, err := util.ExecStringCommand(command)
 	if err != nil {
-		return err
+		return errors.New(result)
 	}
 	logger.Log(result)
 	return err
@@ -147,7 +147,7 @@ func (vcs *VersionControl) CreateCommit(message string) error {
 	logger.Command("Creating Git commit: " + command)
 	result, err := exec.Command("git", "commit", "-m", `"`+message+`"`).Output()
 	if err != nil {
-		return err
+		return errors.New(string(result))
 	}
 	logger.Log(string(result))
 	return err
@@ -163,7 +163,7 @@ func (vcs *VersionControl) TrackAllFiles() error {
 	logger.Command("Add all files to tracking: " + command)
 	result, err := util.ExecStringCommand(command)
 	if err != nil {
-		return err
+		return errors.New(string(result))
 	}
 	logger.Log(result)
 	return err
