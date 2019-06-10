@@ -86,7 +86,7 @@ func mergeConfigs(configPaths []string) (Configuration, error) {
 }
 
 type Configuration struct {
-	ConfigPath  string
+	ConfigPath  string `yaml:"ConfigPath,omitempty"`
 	ProjectName string `yaml:"ProjectName,omitempty"`
 	Language    string `yaml:"Language,omitempty"`
 	Docker      struct {
@@ -171,12 +171,15 @@ func (config *Configuration) SaveConfig() error {
 		currentConfig.VersionControl.Password = ""
 	}
 
+	configPath := currentConfig.ConfigPath
+	currentConfig.ConfigPath = ""
+
 	configYaml, err := yaml.Marshal(currentConfig)
 	if err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(currentConfig.ConfigPath, configYaml, 0644)
+	return ioutil.WriteFile(configPath, configYaml, 0644)
 }
 
 func parseConfig(configPath string) (Configuration, error) {

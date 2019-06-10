@@ -1,0 +1,8 @@
+ProjectName: hippo
+Language: golang
+Docker:
+  RegistryRepository: hippo
+KubernetesContexts:
+  local: --context docker-for-desktop --namespace default
+VersionControl:
+  Repository: hippo
