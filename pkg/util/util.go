@@ -144,8 +144,8 @@ func HandleFatalError(err error) {
 			logger.Error(string(exitError.Stderr))
 		}
 		logger.Error(err.Error())
+		os.Exit(1)
 	}
-	os.Exit(1)
 }
 
 func PathExists(path string) (bool, error) {
