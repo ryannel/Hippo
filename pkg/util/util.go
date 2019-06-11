@@ -21,7 +21,7 @@ func PromptString(label string) (string, error) {
 	return prompt.Run()
 }
 
-func PromptInt(label string) (int, error){
+func PromptInt(label string) (int, error) {
 	validate := func(input string) error {
 		_, err := strconv.Atoi(input)
 		if err != nil {
@@ -47,8 +47,8 @@ func PromptInt(label string) (int, error){
 
 func PromptPassword(label string) (string, error) {
 	prompt := promptui.Prompt{
-		Label:    label,
-		Mask:     '*',
+		Label: label,
+		Mask:  '*',
 	}
 
 	return prompt.Run()
@@ -71,13 +71,13 @@ func CreateFile(folder string, fileName string, content string) error {
 	exists, err := PathExists(fileName)
 	if exists {
 		log.Print(fileName + " already exists")
-	} else if err != nil{
+	} else if err != nil {
 		return err
 	}
 
 	file, err := os.Create(fileName)
 	if err != nil {
-		return  err
+		return err
 	}
 
 	_, err = file.WriteString(content)
@@ -104,7 +104,7 @@ func ExecCommandStreamingOut(command string) error {
 
 	err := cmd.Start()
 	if err != nil {
-		return  err
+		return err
 	}
 
 	scanner := bufio.NewScanner(stdOut)
@@ -122,7 +122,7 @@ func ExecCommandStreamingOut(command string) error {
 	return nil
 }
 
-func GetCurrentFolderName() (string, error){
+func GetCurrentFolderName() (string, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -140,7 +140,6 @@ func HandleFatalError(err error) {
 	if err != nil {
 		exitError, isExitError := err.(*exec.ExitError)
 		if isExitError {
-			log.Print(string(exitError.Stderr))
 			logger.Error(string(exitError.Stderr))
 		}
 		logger.Error(err.Error())
@@ -150,7 +149,11 @@ func HandleFatalError(err error) {
 
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
-	if err == nil { return true, nil }
-	if os.IsNotExist(err) { return false, nil }
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
 	return true, err
 }

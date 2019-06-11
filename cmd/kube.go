@@ -10,7 +10,9 @@ import (
 
 func init() {
 	kubeCmd.AddCommand(kubeDeployCmd)
+	kubeCmd.AddCommand(kubeUiCmd)
 	rootCmd.AddCommand(kubeCmd)
+
 }
 
 var kubeCmd = &cobra.Command{
@@ -26,7 +28,7 @@ Some usage examples.
 var kubeDeployCmd = &cobra.Command{
 	Use:   "deploy <environment>",
 	Short: "automates kubernetes environment deployments",
-	Long:  `automates kubernetes environment deployments
+	Long: `automates kubernetes environment deployments
 
 Some usage examples.
 `,
@@ -50,4 +52,24 @@ Some usage examples.
 	},
 }
 
+var kubeUiCmd = &cobra.Command{
+	Use:   "ui",
+	Short: "Deploys local kubernetes UI Dashboard",
+	Long: `Deploys local kubernetes UI Dashboard
 
+Some usage examples.
+`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 0 {
+			return errors.New("hippo kube ui takes no arguments")
+		}
+
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		err := kube.Ui()
+		util.HandleFatalError(err)
+
+		log.Print("Deployment Completed.")
+	},
+}
