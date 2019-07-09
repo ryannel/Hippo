@@ -6,8 +6,10 @@ func GetRegistryDomain(registryName string) string {
 	var domain string
 
 	switch registryName {
-	case dockerRegistries.QuayIo: domain = "quay.io"
-	case dockerRegistries.Azure: domain = "azurecr.io"
+	case dockerRegistries.QuayIo:
+		domain = "quay.io"
+	case dockerRegistries.Azure:
+		domain = "azurecr.io"
 	}
 
 	return domain
@@ -17,7 +19,10 @@ func BuildReigistryUrl(registryName string, subdomain string, namespace string) 
 	domain := GetRegistryDomain(registryName)
 	var url string
 	switch registryName {
-	case dockerRegistries.QuayIo: url = subdomain + "." + domain + "/" + namespace
+	case dockerRegistries.QuayIo:
+		url = domain + "/" + namespace
+	case dockerRegistries.Azure:
+		url = subdomain + "." + domain + "/" + namespace
 	}
 	return url
 }
@@ -26,7 +31,10 @@ func BuildDockerRepositoryUrl(registryName string, subDomain, namespace string, 
 	domain := GetRegistryDomain(registryName)
 	var url string
 	switch registryName {
-	case dockerRegistries.QuayIo: url = domain + "/" + namespace + "/" + repository
+	case dockerRegistries.QuayIo:
+		url = domain + "/" + namespace + "/" + repository
+	case dockerRegistries.Azure:
+		url = subDomain + "." + domain + "/" + namespace + "/" + repository
 	}
 	return url
 }
