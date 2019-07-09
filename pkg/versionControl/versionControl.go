@@ -137,6 +137,27 @@ func (vcs *VersionControl) SetOrigin() error {
 	return err
 }
 
+func (vcs *VersionControl) SetUpstream() error {
+	err := vcs.Validate()
+	if err != nil {
+		return err
+	}
+
+	branch, err := vcs.GetBranch()
+	if err != nil {
+		return err
+	}
+
+	command := "git branch --set-upstream-to origin/" + branch
+	logger.Command("Adding Git Origin: " + command)
+	result, err := util.ExecStringCommand(command)
+	if err != nil {
+		return errors.New(result)
+	}
+	logger.Log(result)
+	return err
+}
+
 func (vcs *VersionControl) CreateCommit(message string) error {
 	err := vcs.Validate()
 	if err != nil {

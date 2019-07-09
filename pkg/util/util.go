@@ -85,8 +85,8 @@ func CreateFile(folder string, fileName string, content string) error {
 }
 
 func PromptYN(promtText string) bool {
-	result, _ := PromptString(promtText + ": y/n")
-	return result == "y" || result == "Y"
+	result, _ := PromptString(promtText + ": Y/n")
+	return result == "y" || result == "Y" || result == ""
 }
 
 func ExecStringCommand(command string) (string, error) {
