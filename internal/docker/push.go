@@ -40,7 +40,7 @@ func Push() error {
 
 	imageName := config.ProjectName
 
-	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.Namespace)
+	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.RegistrySubDomain, config.Docker.Namespace)
 
 	err = docker.Login(registryUrl, config.Docker.RegistryUser, config.Docker.RegistryPassword)
 	if err != nil {

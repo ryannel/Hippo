@@ -4,18 +4,25 @@ import (
 	"github.com/ryannel/hippo/pkg/template"
 	"github.com/ryannel/hippo/pkg/util"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 type goLangScaffold struct {}
 
 func (scaffold goLangScaffold) CreateProjectTemplate(projectFolderPath string, projectName string) error {
-	err := scaffold.createMain(projectFolderPath)
+	appFolderPath, err := scaffold.CreateAppFolder(projectFolderPath)
+	if err != nil {
+		return err
+	}
+
+	err = scaffold.createMain(appFolderPath)
 	if err != nil {
 	    return err
 	}
 
-	err = scaffold.createGoModule(projectFolderPath, projectName)
+	err = scaffold.createGoModule(appFolderPath, projectName)
 	if err != nil {
 		return err
 	}
@@ -38,6 +45,8 @@ func (goLangScaffold) CreateGitIgnore(folder string) error {
 *.dll
 *.so
 *.dylib
+
+.idea/
 
 # Test binary, built with 'go test -c'
 *.test
@@ -82,4 +91,13 @@ deployment_files
 .gitignore
 azure-pipelines.yml
 .editorconfig`)
+}
+
+func (scaffold goLangScaffold) CreateAppFolder(projectFolderPath string) (string, error) {
+	appFolderPath := filepath.Join(projectFolderPath, "app")
+	log.Print("Creating Project app folder: " + appFolderPath)
+
+	err := os.Mkdir(appFolderPath, os.ModePerm)
+
+	return appFolderPath, err
 }

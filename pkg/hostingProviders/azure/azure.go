@@ -61,8 +61,7 @@ func (azure *Provider) CreateRepository() error {
 
 	switch response.StatusCode {
 	case 409: err = errors.New("409: repository already exist")
-	case 201: err = errors.New(response.Status)
-	default: err = nil
+	case 201: err = nil
 	}
 
 	return err
@@ -119,6 +118,9 @@ func (azure *Provider) getProjectId() (string, error) {
 	response, err := client.Do(req)
 	if err != nil {
 		return "", nil
+	}
+	if response.StatusCode != 200 {
+		return "", errors.New("Error fetching AzureDevops project ID: " + response.Status)
 	}
 
 	decoder := json.NewDecoder(response.Body)

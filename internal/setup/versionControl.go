@@ -4,8 +4,11 @@ import (
 	"errors"
 	"github.com/ryannel/hippo/pkg/configuration"
 	"github.com/ryannel/hippo/pkg/enum/versionControlProviders"
+	"github.com/ryannel/hippo/pkg/scaffoldManager"
 	"github.com/ryannel/hippo/pkg/util"
 	"github.com/ryannel/hippo/pkg/versionControl"
+	"log"
+	"os"
 )
 
 func VersionControl() error {
@@ -28,6 +31,21 @@ func VersionControl() error {
 		return err
 	}
 
+	projectFolderPath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	scaffold, err := scaffoldManager.New(config.ProjectName, projectFolderPath, config.Language)
+	if err != nil {
+		return err
+	}
+
+	err = scaffold.CreateGitIgnore()
+	if err != nil {
+		return err
+	}
+
 	vcs, err := versionControl.New(config.VersionControl.Provider, config.VersionControl.NameSpace, config.VersionControl.Project, config.VersionControl.Repository, config.VersionControl.Username, config.VersionControl.Password)
 	if err != nil {
 		return err
@@ -38,18 +56,20 @@ func VersionControl() error {
 		return err
 	}
 
-	err = vcs.TrackAllFiles()
-	if err != nil {
-		return err
-	}
-
-	err = vcs.CreateCommit("initial commit")
-	if err != nil {
-		return err
-	}
+	//err = vcs.TrackAllFiles()
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//err = vcs.CreateCommit("initial commit")
+	//if err != nil {
+	//	return err
+	//}
 
 	err = vcs.CreateRepository()
-	if err != nil {
+	if err != nil && err.Error() == "409: repository already exist" {
+		log.Println(err)
+	} else if err != nil {
 		return err
 	}
 

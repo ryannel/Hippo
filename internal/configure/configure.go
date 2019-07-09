@@ -19,7 +19,7 @@ func Configure() error {
 	config, err := configuration.New()
 	if err != nil {
 		return err
-	} else if config.ConfigPath == "" {
+	} else if config.ConfigPath != wd {
 		config, err = configuration.Create(wd)
 		if err != nil {
 			return err

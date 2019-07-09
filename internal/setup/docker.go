@@ -24,7 +24,7 @@ func Docker(projectFolderPath string) error {
 		return err
 	}
 
-	_, err = DockerConfig(config)
+	config, err = DockerConfig(config)
 	if err != nil {
 		return err
 	}
@@ -59,12 +59,22 @@ func DockerFiles(projectName string, projectFolderPath string, language string) 
 func DockerConfig(config configuration.Configuration) (configuration.Configuration, error) {
 	registryName := config.Docker.RegistryName
 	if registryName == "" {
-		registryName, err := util.PromptSelect("Docker Registry", []string{dockerRegistries.QuayIo, "None"})
+		registryName, err := util.PromptSelect("Docker Registry", []string{dockerRegistries.QuayIo, dockerRegistries.Azure, "None"})
 		if err != nil {
 			return configuration.Configuration{}, err
 		}
 		config.Docker.RegistryName = registryName
 		config.Docker.RegistryDomain = docker.GetRegistryDomain(registryName)
+	}
+
+	if config.Docker.RegistrySubDomain == "" {
+		if config.Docker.RegistryName != dockerRegistries.QuayIo {
+			registrySubDomain, err := util.PromptString("Docker Registry Subdomain")
+			if err != nil {
+				return configuration.Configuration{}, err
+			}
+			config.Docker.RegistrySubDomain = registrySubDomain
+		}
 	}
 
 	if registryName == "None" {

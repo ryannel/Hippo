@@ -23,7 +23,7 @@ func Build() error {
 		return errors.New("no hippo.yaml found in path. Please run `hippo configure`")
 	}
 
-	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.Namespace)
+	registryUrl := docker.BuildReigistryUrl(config.Docker.RegistryName, config.Docker.RegistrySubDomain, config.Docker.Namespace)
 
 	imageName := generateDockerImageName(registryUrl, config.ProjectName)
 

@@ -91,6 +91,7 @@ type Configuration struct {
 	Language    string `yaml:"Language,omitempty"`
 	Docker      struct {
 		RegistryName       string `yaml:"RegistryName,omitempty"`
+		RegistrySubDomain  string `yaml:"RegistrySubDomain,omitempty"`
 		RegistryDomain     string `yaml:"RegistryDomain,omitempty"`
 		RegistryRepository string `yaml:"RegistryRepository,omitempty"`
 		Namespace          string `yaml:"NameSpace,omitempty"`
@@ -125,6 +126,10 @@ func (config *Configuration) SaveConfig() error {
 
 	if currentConfig.Docker.RegistryName == parentConfig.Docker.RegistryName {
 		currentConfig.Docker.RegistryName = ""
+	}
+
+	if currentConfig.Docker.RegistrySubDomain == parentConfig.Docker.RegistrySubDomain {
+		currentConfig.Docker.RegistrySubDomain = ""
 	}
 
 	if currentConfig.Docker.RegistryDomain == parentConfig.Docker.RegistryDomain {
@@ -169,6 +174,12 @@ func (config *Configuration) SaveConfig() error {
 
 	if currentConfig.VersionControl.Password == parentConfig.VersionControl.Password {
 		currentConfig.VersionControl.Password = ""
+	}
+
+	for key, value := range currentConfig.KubernetesContexts {
+		if value == parentConfig.KubernetesContexts[key] {
+			delete(currentConfig.KubernetesContexts, key)
+		}
 	}
 
 	configPath := currentConfig.ConfigPath
