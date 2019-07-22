@@ -1,4 +1,4 @@
-package setup
+package kube
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"github.com/ryannel/hippo/pkg/template"
 )
 
-func SetupLocalDb() error {
+func DeployPostgres() error {
 	config, err := configuration.New()
 	if err != nil {
 		return err

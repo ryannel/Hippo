@@ -2,6 +2,45 @@ package template
 
 import "strings"
 
+func SqsDeployYaml() string {
+	return `apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sqs
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sqs
+    spec:
+      containers:
+        - name: sqs
+          image: roribio16/alpine-sqs:latest
+          imagePullPolicy: "IfNotPresent"
+          resources:
+            requests:
+              memory: 200Mi
+            limits:
+              memory: 300Mi
+          ports:
+            - containerPort: 9324
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqs
+  labels:
+    app: sqs
+spec:
+  ports:
+   - port: 9324
+  selector:
+   app: sqs
+  type: LoadBalancer
+`
+}
+
 func PostgresDeployYaml(POSTGRES_DB string, POSTGRES_USER string, POSTGRES_PASSWORD string) string {
 	template := `apiVersion: extensions/v1beta1
 kind: Deployment

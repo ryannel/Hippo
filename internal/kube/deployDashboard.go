@@ -11,7 +11,7 @@ import (
 	"runtime"
 )
 
-func Ui() error {
+func DeployDashboard() error {
 	k8, err := kubernetes.New("--context docker-for-desktop --namespace kube-system")
 	if err != nil {
 		return err

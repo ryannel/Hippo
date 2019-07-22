@@ -1,12 +1,11 @@
-package setup
+package kube
 
 import (
 	"github.com/ryannel/hippo/pkg/logger"
 	"github.com/ryannel/hippo/pkg/template"
 )
 
-func SetupLocalRabbit() error {
-
+func DeployRabbit() error {
 	k8, err := createK8LocalInstance()
 	if err != nil {
 		return err
