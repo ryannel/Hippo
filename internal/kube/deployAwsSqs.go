@@ -6,7 +6,7 @@ import (
 )
 
 func DeployAwsSqs() error {
-	k8, err := kubernetes.New("--context docker-for-desktop --namespace kube-system")
+	k8, err := kubernetes.New("--context docker-for-desktop --namespace default")
 	if err != nil {
 		return err
 	}
