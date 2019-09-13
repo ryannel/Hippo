@@ -111,6 +111,9 @@ type Configuration struct {
 		Username   string `yaml:"Username,omitempty"`
 		Password   string `yaml:"Password,omitempty"`
 	} `yaml:"VersionControl,omitempty"`
+	Aws struct {
+		CertificatePath string `yaml:"CertificatePath,omitempty"`
+	}
 }
 
 func (config *Configuration) SaveConfig() error {
@@ -174,6 +177,10 @@ func (config *Configuration) SaveConfig() error {
 
 	if currentConfig.VersionControl.Password == parentConfig.VersionControl.Password {
 		currentConfig.VersionControl.Password = ""
+	}
+
+	if currentConfig.Aws.CertificatePath == parentConfig.Aws.CertificatePath {
+		currentConfig.Aws.CertificatePath = ""
 	}
 
 	for key, value := range currentConfig.KubernetesContexts {

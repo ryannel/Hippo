@@ -3,12 +3,15 @@ package util
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"github.com/manifoldco/promptui"
 	"github.com/ryannel/hippo/pkg/logger"
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -156,4 +159,28 @@ func PathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return true, err
+}
+
+func Openbrowser(url string) {
+	var err error
+
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", url).Start()
+	case "windows":
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	case "darwin":
+		err = exec.Command("open", url).Start()
+	default:
+		err = fmt.Errorf("unsupported platform")
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func WaitForever() {
+	channel := make(chan os.Signal, 1)
+	signal.Notify(channel, os.Interrupt)
+	<-channel
 }
