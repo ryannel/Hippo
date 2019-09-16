@@ -5,7 +5,6 @@ import (
 	"github.com/ryannel/hippo/internal/aws"
 	"github.com/ryannel/hippo/pkg/util"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 func init() {
@@ -44,6 +43,5 @@ var awsConnectElasticSearchCmd = &cobra.Command{
 
 		err := aws.ConnectElasticSearch("eu-west-1", profile)
 		util.HandleFatalError(err)
-		log.Print("SSH tunnel created.")
 	},
 }

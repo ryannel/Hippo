@@ -14,6 +14,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 func PromptString(label string) (string, error) {
@@ -180,7 +181,7 @@ func Openbrowser(url string) {
 }
 
 func WaitForever() {
-	channel := make(chan os.Signal, 1)
-	signal.Notify(channel, os.Interrupt)
-	<-channel
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL)
+	<-sigCh
 }

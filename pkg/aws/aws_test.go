@@ -3,7 +3,7 @@ package aws
 import "testing"
 
 func Test_Live(t *testing.T) {
-	aws, _ := Connect("", "eu-west-1")
+	aws, _ := New("", "eu-west-1")
 	rds := aws.RDS
 	instances, _ := rds.GetInstances()
 

@@ -19,7 +19,7 @@ type Aws struct {
 	RDS rds.RDS
 }
 
-func Connect(region string) (Aws, error){
+func New(region string) (Aws, error){
 	sess, _ := session.NewSessionWithOptions(session.Options{
 		Config: aws.Config{
 			Region:   aws.String(region),
