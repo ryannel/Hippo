@@ -61,7 +61,7 @@ func ConnectElasticSearch(region string, profile string) error {
 	logger.Info("SSH tunnel created")
 	util.Openbrowser("https://localhost:30443/_plugin/kibana")
 
-	return cmdAwaitInterupt(cmd, errCh, "Shutting down SSH tunnel")
+	return cadAwaitInterrupt(cmd, errCh, "Shutting down SSH tunnel")
 }
 
 func execAsyncCommand(command string) (*exec.Cmd, chan error) {
@@ -81,7 +81,7 @@ func execAsyncCommand(command string) (*exec.Cmd, chan error) {
 	return <-cmdCh, errCh
 }
 
-func cmdAwaitInterupt(cmd *exec.Cmd, errCh chan error, shutdownMessage string) error {
+func cadAwaitInterrupt(cmd *exec.Cmd, errCh chan error, shutdownMessage string) error {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL)
 
