@@ -35,7 +35,7 @@ func New(region string) (Aws, error){
 	return awsInstance, nil
 }
 
-func (aws *Aws) Login(profile string) (string, error) {
+func Login(profile string) (string, error) {
 	profileExtension := ""
 	if profile != "" {
 		profileExtension = " --profile " + profile

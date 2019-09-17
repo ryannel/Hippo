@@ -15,16 +15,16 @@ import (
 )
 
 func ConnectElasticSearch(region string, profile string) error {
-	connection, err := aws.New(region)
-	if err != nil {
-		return err
-	}
-
-	result, err := connection.Login(profile)
+	result, err := aws.Login(profile)
 	if err != nil {
 		return err
 	}
 	logger.Info(result)
+
+	connection, err := aws.New(region)
+	if err != nil {
+		return err
+	}
 
 	logger.Info("Finding running worker instance")
 	workerId, err := connection.EC2.GetRunningWorkerInstanceId()
