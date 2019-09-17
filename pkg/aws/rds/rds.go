@@ -27,7 +27,7 @@ func (rds *RDS) GetInstances() ([]string, error) {
 
 type Endpoint struct {
 	Address string
-	Port int64
+	Port int
 }
 
 func (rds *RDS) GetEndpoint(instanceName string) (Endpoint, error) {
@@ -46,7 +46,7 @@ func (rds *RDS) GetEndpoint(instanceName string) (Endpoint, error) {
 
 	endpoint := Endpoint{
 		Address: *instanceDescriptions.DBInstances[0].Endpoint.Address,
-		Port: *instanceDescriptions.DBInstances[0].Endpoint.Port,
+		Port: int(*instanceDescriptions.DBInstances[0].Endpoint.Port),
 	}
 
 	return endpoint, nil

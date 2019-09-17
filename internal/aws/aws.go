@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -60,6 +61,51 @@ func ConnectElasticSearch(region string, profile string) error {
 	time.Sleep(5 * time.Second)
 	logger.Info("SSH tunnel created")
 	util.Openbrowser("https://localhost:30443/_plugin/kibana")
+
+	return cmdAwaitInterrupt(cmd, errCh, "Shutting down SSH tunnel")
+}
+
+func ConnectPostgres(region string, profile string) error {
+	result, err := aws.Login(profile)
+	if err != nil {
+		return err
+	}
+	logger.Info(result)
+
+	connection, err := aws.New(region)
+	if err != nil {
+		return err
+	}
+
+	logger.Info("Finding running worker instance")
+	workerId, err := connection.EC2.GetRunningWorkerInstanceId()
+	if err != nil {
+		return err
+	}
+	logger.Info("Using worker instance: " + workerId)
+
+	logger.Info("Finding RDS instances")
+	instances, err := connection.RDS.GetInstances()
+	if err != nil {
+		return err
+	}
+
+	logger.Info("Finding endpoint for RDS instance: " + instances[0])
+	endpoint, err := connection.RDS.GetEndpoint(instances[0])
+
+	pemFilePath, err := getCertificatePath()
+	if err != nil {
+		return err
+	}
+
+	command := "ssh -i " + pemFilePath + " ec2-user@" + workerId + " -N -L 35432:" + endpoint.Address + ":" + strconv.Itoa(endpoint.Port) + ""
+	logger.Command("Executing SSH tunnel: " + command)
+
+	cmd, errCh := execAsyncCommand(command)
+
+	logger.Info("SSH starting...")
+	time.Sleep(3 * time.Second)
+	logger.Info("SSH tunnel created")
 
 	return cmdAwaitInterrupt(cmd, errCh, "Shutting down SSH tunnel")
 }
