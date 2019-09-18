@@ -16,6 +16,11 @@ import (
 )
 
 func ConnectElasticSearch(region string, profile string) error {
+	err := os.Setenv("AWS_PROFILE", profile)
+	if err != nil {
+		return err
+	}
+
 	result, err := aws.Login(profile)
 	if err != nil {
 		return err
@@ -66,6 +71,11 @@ func ConnectElasticSearch(region string, profile string) error {
 }
 
 func ConnectPostgres(region string, profile string) error {
+	err := os.Setenv("AWS_PROFILE", profile)
+	if err != nil {
+		return err
+	}
+
 	result, err := aws.Login(profile)
 	if err != nil {
 		return err
