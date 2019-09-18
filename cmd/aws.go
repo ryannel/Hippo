@@ -36,7 +36,7 @@ var awsConnectElasticSearchCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		profile := ""
+		profile := "default"
 		if len(args) > 0 {
 			profile = args[0]
 		}
@@ -57,7 +57,7 @@ var awsConnectPostgresCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		profile := ""
+		profile := "default"
 		if len(args) > 0 {
 			profile = args[0]
 		}

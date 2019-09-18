@@ -21,11 +21,11 @@ func ConnectElasticSearch(region string, profile string) error {
 		return err
 	}
 
-	result, err := aws.Login(profile)
-	if err != nil {
-		return err
-	}
-	logger.Info(result)
+	//result, err := aws.Login(profile)
+	//if err != nil {
+	//	return err
+	//}
+	//logger.Info(result)
 
 	connection, err := aws.New(region)
 	if err != nil {
@@ -61,6 +61,13 @@ func ConnectElasticSearch(region string, profile string) error {
 	logger.Command("Executing SSH tunnel: " + command)
 
 	cmd, errCh := execAsyncCommand(command)
+	select {
+	case err, errored := <-errCh:
+		if errored {
+			return err
+		}
+	default:
+	}
 
 	logger.Info("SSH starting...")
 	time.Sleep(5 * time.Second)
@@ -112,6 +119,13 @@ func ConnectPostgres(region string, profile string) error {
 	logger.Command("Executing SSH tunnel: " + command)
 
 	cmd, errCh := execAsyncCommand(command)
+	select {
+	case err, errored := <-errCh:
+		if errored {
+			return err
+		}
+	default:
+	}
 
 	logger.Info("SSH starting...")
 	time.Sleep(3 * time.Second)
@@ -143,15 +157,16 @@ func cmdAwaitInterrupt(cmd *exec.Cmd, errCh chan error, shutdownMessage string) 
 
 	var err error
 	select {
+	case <-errCh:
+		logger.Error((<-errCh).Error())
+		err = cmd.Process.Kill()
 	case <-sigCh:
 		logger.Info(shutdownMessage)
 		err = cmd.Process.Kill()
 		if err != nil {
 			logger.Error(err.Error())
 		}
-	case <-errCh:
-		logger.Error((<-errCh).Error())
-		err = cmd.Process.Kill()
+
 	}
 
 	return err
