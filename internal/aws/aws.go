@@ -135,15 +135,17 @@ func ConnectPostgres(region string, profile string) error {
 }
 
 func SetContext(contextName string) error {
-	result, err := aws.Login(contextName)
-	if err != nil {
-		return err
+	if contextName == "local" {
+		result, err := aws.Login(contextName)
+		if err != nil {
+			return err
+		}
+		logger.Info(result)
 	}
-	logger.Info(result)
 
 	command := "kubectl config use-context " + contextName
 	logger.Command("using kubectl context `" + contextName + "`: " + command)
-	_, err = util.ExecStringCommand(command)
+	_, err := util.ExecStringCommand(command)
 	if err != nil {
 		return err
 	}
