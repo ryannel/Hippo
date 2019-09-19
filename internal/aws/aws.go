@@ -135,7 +135,7 @@ func ConnectPostgres(region string, profile string) error {
 }
 
 func SetContext(contextName string) error {
-	if contextName == "local" {
+	if contextName != "local" {
 		result, err := aws.Login(contextName)
 		if err != nil {
 			return err
