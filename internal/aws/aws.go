@@ -21,11 +21,11 @@ func ConnectElasticSearch(region string, profile string) error {
 		return err
 	}
 
-	//result, err := aws.Login(profile)
-	//if err != nil {
-	//	return err
-	//}
-	//logger.Info(result)
+	result, err := aws.Login(profile)
+	if err != nil {
+		return err
+	}
+	logger.Info(result)
 
 	connection, err := aws.New(region)
 	if err != nil {
@@ -132,6 +132,24 @@ func ConnectPostgres(region string, profile string) error {
 	logger.Info("SSH tunnel created")
 
 	return cmdAwaitInterrupt(cmd, errCh, "Shutting down SSH tunnel")
+}
+
+func SetContext(contextName string) error {
+	result, err := aws.Login(contextName)
+	if err != nil {
+		return err
+	}
+	logger.Info(result)
+
+	command := "kubectl config use-context " + contextName
+	logger.Command("using kubectl context `" + contextName + "`: " + command)
+	_, err = util.ExecStringCommand(command)
+	if err != nil {
+		return err
+	}
+
+	logger.Log("AWS context switched to: " + contextName)
+	return nil
 }
 
 func execAsyncCommand(command string) (*exec.Cmd, chan error) {

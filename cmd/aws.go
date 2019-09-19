@@ -12,6 +12,8 @@ func init() {
 	awsConnectCmd.AddCommand(awsConnectPostgresCmd)
 
 	awsCmd.AddCommand(awsConnectCmd)
+	awsCmd.AddCommand(awsSetContextCmd)
+
 	rootCmd.AddCommand(awsCmd)
 }
 
@@ -63,6 +65,27 @@ var awsConnectPostgresCmd = &cobra.Command{
 		}
 
 		err := aws.ConnectPostgres("eu-west-1", profile)
+		util.HandleFatalError(err)
+	},
+}
+
+var awsSetContextCmd = &cobra.Command{
+	Use:   "context <context>",
+	Short: "logs in and changes to kubectl context",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) > 1 {
+			return errors.New("context name can't contain spaces")
+		}
+
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		context := "local"
+		if len(args) > 0 {
+			context = args[0]
+		}
+
+		err := aws.SetContext(context)
 		util.HandleFatalError(err)
 	},
 }
