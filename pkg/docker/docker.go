@@ -15,7 +15,7 @@ func Build(imageName string, commitTag string) error {
 		commitTag = "-t " + commitTag + " "
 	}
 
-	command := strings.ToLower(`docker build --pull --shm-size 256m --memory=3g --memory-swap=-1 ` + commitTag + `.`)
+	command := strings.ToLower(`docker build --pull ` + commitTag + `.`)
 	logger.Command("Building Docker image: " + command)
 	return execCommandStreamingOut(command)
 }

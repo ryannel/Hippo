@@ -53,7 +53,7 @@ func DeployPostgres() error {
 }
 
 func createK8LocalInstance() (kubernetes.Kubernetes, error) {
-	k8, err := kubernetes.New("--context docker-for-desktop --namespace default")
+	k8, err := kubernetes.New("")
 	if err != nil {
 		return kubernetes.Kubernetes{}, err
 	}

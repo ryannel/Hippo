@@ -32,21 +32,21 @@ var kubeDeployCmd = &cobra.Command{
 
 // TODO: Add usage examples
 var kubeDeployProjectCmd = &cobra.Command{
-	Use:   "project <environment>",
+	Use:   "project <environment> <tag>",
 	Short: "automates kubernetes environment deployments",
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("an environment name must be provided")
-		}
-
 		if len(args) > 1 {
-			return errors.New("environment name can't contain spaces")
+			return errors.New("takes only 1 arguments")
 		}
 
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		envName := args[0]
+		envName := "local"
+		if len(args) > 0 {
+			envName = args[0]
+		}
+
 		err := kube.Deploy(envName)
 		util.HandleFatalError(err)
 

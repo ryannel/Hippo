@@ -8,7 +8,7 @@ import (
 )
 
 func DeployDashboard() error {
-	k8, err := kubernetes.New("--context docker-for-desktop --namespace kube-system")
+	k8, err := kubernetes.New("--namespace kube-system")
 	if err != nil {
 		return err
 	}
