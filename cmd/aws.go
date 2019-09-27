@@ -10,6 +10,7 @@ import (
 func init() {
 	awsConnectCmd.AddCommand(awsConnectElasticSearchCmd)
 	awsConnectCmd.AddCommand(awsConnectPostgresCmd)
+	awsConnectCmd.AddCommand(awsConnectDashboardCmd)
 
 	awsCmd.AddCommand(awsConnectCmd)
 	awsCmd.AddCommand(awsSetContextCmd)
@@ -65,6 +66,27 @@ var awsConnectPostgresCmd = &cobra.Command{
 		}
 
 		err := aws.ConnectPostgres("eu-west-1", profile)
+		util.HandleFatalError(err)
+	},
+}
+
+var awsConnectDashboardCmd = &cobra.Command{
+	Use:   "dashboard <profile>",
+	Short: "creates an ssh tunnel to the kubernetes dashboard on AWS",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) > 1 {
+			return errors.New("profile name can't contain spaces")
+		}
+
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		profile := "default"
+		if len(args) > 0 {
+			profile = args[0]
+		}
+
+		err := aws.ConnectDashboard(profile)
 		util.HandleFatalError(err)
 	},
 }

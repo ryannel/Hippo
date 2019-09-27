@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/ryannel/hippo/pkg/aws"
 	"github.com/ryannel/hippo/pkg/configuration"
+	"github.com/ryannel/hippo/pkg/kubernetes"
 	"github.com/ryannel/hippo/pkg/logger"
 	"github.com/ryannel/hippo/pkg/util"
 	"os"
@@ -129,7 +130,7 @@ func ConnectPostgres(region string, profile string) error {
 
 	logger.Info("SSH starting...")
 	time.Sleep(3 * time.Second)
-	logger.Info("SSH tunnel created")
+	logger.Info("SSH tunnel created. Db Exposed on: `localhost:35432`")
 
 	return cmdAwaitInterrupt(cmd, errCh, "Shutting down SSH tunnel")
 }
@@ -152,6 +153,37 @@ func SetContext(contextName string) error {
 
 	logger.Log("AWS context switched to: " + contextName)
 	return nil
+}
+
+func ConnectDashboard(profile string) error {
+	result, err := aws.Login(profile)
+	if err != nil {
+		return err
+	}
+	logger.Info(result)
+
+	k8, err := kubernetes.New("--context="+profile)
+	if err != nil {
+		return err
+	}
+	eksAdminToken, err := k8.GetEksAdminToken()
+
+	command := "kubectl proxy --port=8010 --context=" + profile
+	logger.Command("Proxying the dashboard port: " + command)
+	cmd, errCh := execAsyncCommand(command)
+	select {
+	case err, errored := <-errCh:
+		if errored {
+			return err
+		}
+	default:
+	}
+
+	time.Sleep(3 * time.Second)
+	util.Openbrowser("http://localhost:8010/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/")
+	logger.Log("Use Token to login: " + eksAdminToken)
+
+	return cmdAwaitInterrupt(cmd, errCh, "Shutting down proxy")
 }
 
 func execAsyncCommand(command string) (*exec.Cmd, chan error) {

@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 )
 
 func New(context string) (Kubernetes, error) {
@@ -66,6 +68,72 @@ func (k8 *Kubernetes) CreateSecret(secretName string, secrets map[string]string)
 	}
 	logger.Log(result)
 	return nil
+}
+
+func (k8 *Kubernetes) GetSecrets(namespace string) ([]string, error) {
+	command := k8.command + " -n " +namespace+ " get secrets"
+	logger.Command("Fetching secrets: " + command)
+	result, err := util.ExecStringCommand(command)
+	if err != nil {
+		return nil, err
+	}
+
+	rows := strings.Split(strings.Replace(result, "\r\n", "\n", -1), "\n")[1:]
+
+	var secretNames []string
+	for _, row := range rows {
+		name := strings.Split(row, " ")[0]
+		if name != "" {
+			secretNames = append(secretNames, name)
+		}
+	}
+
+	return secretNames, err
+}
+
+func (k8 *Kubernetes) GetEksAdminToken() (string, error){
+	secretNames, err := k8.GetSecrets("kube-system")
+	if err != nil {
+		return "", err
+	}
+
+	var eksAdminSecretName string
+	for _, name := range secretNames {
+		matched, err := filepath.Match("eks-admin-token-*", name)
+		if err != nil {
+			return "", err
+		}
+		if matched {
+			eksAdminSecretName = name
+		}
+	}
+
+	command := k8.command + " -n kube-system describe secret " + eksAdminSecretName
+	logger.Command("Getting EKS Admin Token: " + command)
+	result, err := util.ExecStringCommand(command)
+	if err != nil {
+		return "", err
+	}
+
+	rows := strings.Split(strings.Replace(result, "\r\n", "\n", -1), "\n")
+
+	var token string
+	for _, row := range rows {
+		matched, err := filepath.Match("token:*", row)
+		if err != nil {
+			return "", err
+		}
+		if matched {
+			token = strings.TrimSpace(row[6:])
+			break
+		}
+	}
+
+	if token == "" {
+		return "", errors.New("unable to find token")
+	}
+
+	return token, nil
 }
 
 func (k8 *Kubernetes) DeleteSecret(secretName string) error {
