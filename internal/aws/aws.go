@@ -179,9 +179,9 @@ func ConnectDashboard(profile string) error {
 	default:
 	}
 
+	logger.Log("Use Token to login: " + eksAdminToken)
 	time.Sleep(3 * time.Second)
 	util.Openbrowser("http://localhost:8010/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/")
-	logger.Log("Use Token to login: " + eksAdminToken)
 
 	return cmdAwaitInterrupt(cmd, errCh, "Shutting down proxy")
 }
