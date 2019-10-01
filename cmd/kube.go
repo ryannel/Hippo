@@ -47,7 +47,7 @@ var kubeDeployProjectCmd = &cobra.Command{
 			envName = args[0]
 		}
 
-		err := kube.Deploy(envName)
+		err := kube.DeployProject(envName)
 		util.HandleFatalError(err)
 
 		log.Print("Deployment Completed.")

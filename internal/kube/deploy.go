@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-func Deploy(envName string) error {
+func DeployProject(envName string) error {
 	logger.Log("Starting `" + envName + "` deployment")
 
 	config, err := configuration.New()
