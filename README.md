@@ -1,6 +1,3 @@
 # hippo
 
-TODO:
-* Create Configure command to generate config files for existing projects
-* Better highlight commands and errors
-* Be able to configure pre deployment commands: setup localdb, setup localrabbit
+Hippo is command line application for orchestrating developer environments by handling handling docker registrys, kubernetes deployments and your AWS context. 
