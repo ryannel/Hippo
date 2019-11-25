@@ -111,7 +111,7 @@ func getTemplatesFromFolder(path string, config configuration.Configuration, com
 
 	var templates []string
 	for _, f := range files {
-		if f.IsDir() == false {
+		if f.IsDir() == false && strings.HasSuffix(f.Name(), ".yaml") {
 			fPath := filepath.Join(path, f.Name())
 			template, err := ioutil.ReadFile(fPath)
 			if err != nil {

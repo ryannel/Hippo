@@ -49,7 +49,6 @@ func (k8 *Kubernetes) Apply(deployYaml string) error {
 	logger.Log(result)
 
 	_ = file.Close()
-	_ = os.Remove(file.Name())
 
 	return err
 }
