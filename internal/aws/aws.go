@@ -61,7 +61,7 @@ func ConnectElasticSearch(region string, profile string) error {
 	command := "ssh -i " + pemFilePath + " ec2-user@" + workerId + " -N -L 30443:" + endpoint + ":443"
 	logger.Command("Executing SSH tunnel: " + command)
 
-	cmd, errCh := execAsyncCommand(command)
+	result, cmd, errCh := execAsyncCommand(command)
 	select {
 	case err, errored := <-errCh:
 		if errored {
@@ -72,10 +72,9 @@ func ConnectElasticSearch(region string, profile string) error {
 
 	logger.Info("SSH starting...")
 	time.Sleep(5 * time.Second)
-	logger.Info("SSH tunnel created")
 	util.Openbrowser("https://localhost:30443/_plugin/kibana")
 
-	return cmdAwaitInterrupt(cmd, errCh, "Shutting down SSH tunnel")
+	return cmdAwaitInterrupt(cmd, errCh,"Shutting down SSH tunnel")
 }
 
 func ConnectPostgres(region string, profile string) error {
@@ -119,20 +118,11 @@ func ConnectPostgres(region string, profile string) error {
 	command := "ssh -i " + pemFilePath + " ec2-user@" + workerId + " -N -L 35432:" + endpoint.Address + ":" + strconv.Itoa(endpoint.Port) + ""
 	logger.Command("Executing SSH tunnel: " + command)
 
-	cmd, errCh := execAsyncCommand(command)
-	select {
-	case err, errored := <-errCh:
-		if errored {
-			return err
-		}
-	default:
-	}
+	result, cmd, errCh := execAsyncCommand(command)
 
-	logger.Info("SSH starting...")
-	time.Sleep(3 * time.Second)
-	logger.Info("SSH tunnel created. Db Exposed on: `localhost:35432`")
+	logger.Info("Creating SSH tunnel. Db will be exposed on: `localhost:35432`")
 
-	return cmdAwaitInterrupt(cmd, errCh, "Shutting down SSH tunnel")
+	return cmdAwaitInterrupt(cmd, errCh,"Shutting down SSH tunnel")
 }
 
 func SetContext(contextName string) error {
@@ -170,37 +160,30 @@ func ConnectDashboard(profile string) error {
 
 	command := "kubectl proxy --port=8010 --context=" + profile
 	logger.Command("Proxying the dashboard port: " + command)
-	cmd, errCh := execAsyncCommand(command)
-	select {
-	case err, errored := <-errCh:
-		if errored {
-			return err
-		}
-	default:
-	}
+	result, cmd, errCh := execAsyncCommand(command)
 
 	logger.Log("Use Token to login: " + eksAdminToken)
-	time.Sleep(3 * time.Second)
 	util.Openbrowser("http://localhost:8010/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/")
 
 	return cmdAwaitInterrupt(cmd, errCh, "Shutting down proxy")
 }
 
-func execAsyncCommand(command string) (*exec.Cmd, chan error) {
+func execAsyncCommand(command string) (string, *exec.Cmd, chan error) {
 	errCh := make(chan error)
 	cmdCh := make(chan *exec.Cmd)
+	result := ""
 
 	go func() {
 		args := strings.Fields(command)
 		cmd := exec.Command(args[0], args[1:]...)
 		cmdCh <- cmd
 
-		result, err := cmd.Output()
+		result, err := cmd.CombinedOutput()
 		logger.Info(string(result))
 		errCh <- err
 	}()
 
-	return <-cmdCh, errCh
+	return result, <-cmdCh, errCh
 }
 
 func cmdAwaitInterrupt(cmd *exec.Cmd, errCh chan error, shutdownMessage string) error {
@@ -209,16 +192,12 @@ func cmdAwaitInterrupt(cmd *exec.Cmd, errCh chan error, shutdownMessage string) 
 
 	var err error
 	select {
-	case <-errCh:
-		logger.Error((<-errCh).Error())
+	case chanErr := <-errCh:
+		logger.Error(chanErr.Error())
 		err = cmd.Process.Kill()
 	case <-sigCh:
 		logger.Info(shutdownMessage)
 		err = cmd.Process.Kill()
-		if err != nil {
-			logger.Error(err.Error())
-		}
-
 	}
 
 	return err
