@@ -22,7 +22,7 @@ spec:
             requests:
               memory: 400Mi
             limits:
-              memory: 800Mi
+              memory: 1000Mi
           ports:
             - containerPort: 9324
 ---
