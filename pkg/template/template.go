@@ -148,6 +148,51 @@ spec:
 	return strings.Replace(template, "{password}", password, -1)
 }
 
+func DynamoDbDeployYaml() string {
+	return `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dynamodb
+  name: dynamodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dynamodb
+  template:
+    metadata:
+      labels:
+         app: dynamodb
+    spec:
+      containers:
+      - image: amazon/dynamodb-local
+        name: dynamodb
+        resources:
+          requests:
+            memory: 200Mi
+          limits:
+            memory: 300Mi
+        ports:
+        - name: dynamodb
+          containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamodb
+  labels:
+    app: dynamodb
+spec:
+  ports:
+    - name: dynamodb
+      port: 8000
+  selector:
+   app: dynamodb
+  type: LoadBalancer
+`
+}
+
 func GenericDeployYaml(projectName string, dockerRegistryUrl string) string {
 	template := `apiVersion: extensions/v1beta1
 kind: Deployment

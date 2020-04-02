@@ -12,7 +12,8 @@ import (
 func init() {
 	kubeDeployCmd.AddCommand(kubeDeployProjectCmd)
 	kubeDeployCmd.AddCommand(kubeDeployDashboardCmd)
-	kubeDeployCmd.AddCommand(kubeDeployDb)
+	kubeDeployCmd.AddCommand(kubeDeployPostgres)
+	kubeDeployCmd.AddCommand(kubeDeployDynamoDb)
 	kubeDeployCmd.AddCommand(kubeDeployRabbit)
 	kubeDeployCmd.AddCommand(kubeDeploySqs)
 
@@ -72,7 +73,7 @@ var kubeDeployDashboardCmd = &cobra.Command{
 	},
 }
 
-var kubeDeployDb = &cobra.Command{
+var kubeDeployPostgres = &cobra.Command{
 	Use:   "postgres",
 	Short: "creates a prostgresql instance in kubernetes and assigns login secrets",
 	Long: `creates a prostgresql instance in kubernetes and assigns login secrets
@@ -89,7 +90,28 @@ Some usage examples.
 		err := kube.DeployPostgres()
 		util.HandleFatalError(err)
 
-		log.Print(componentEnum.Db + " component has been created")
+		log.Print(componentEnum.DynamoDb + " component has been created")
+	},
+}
+
+var kubeDeployDynamoDb = &cobra.Command{
+	Use:   "dynamodb",
+	Short: "creates a dynamodb instance in kubernetes",
+	Long: `creates a dynamodb instance in kubernetes
+
+Some usage examples.
+`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 0 {
+			return errors.New("setup dynamodb takes no arguments")
+		}
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		err := kube.DeployDynamoDb()
+		util.HandleFatalError(err)
+
+		log.Print(componentEnum.Postgres + " component has been created")
 	},
 }
 

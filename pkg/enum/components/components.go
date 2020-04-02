@@ -2,7 +2,8 @@ package components
 
 const (
 	Docker         = "docker"
-	Db             = "db"
+	Postgres       = "db"
+	DynamoDb	   = "dynamodb"
 	Kubernetes     = "kubernetes"
 	VersionControl = "VersionControl"
 	Rabbit         = "rabbit"
