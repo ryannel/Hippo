@@ -94,12 +94,12 @@ func ConnectPostgres(region string, profile string, instanceName *string) error 
 		return err
 	}
 
-	logger.Info("Finding running worker instanceName")
+	logger.Info("Finding running worker instance")
 	workerId, err := connection.EC2.GetRunningWorkerInstanceId()
 	if err != nil {
 		return err
 	}
-	logger.Info("Using worker instanceName: " + workerId)
+	logger.Info("Using worker instance: " + workerId)
 
 	logger.Info("Finding RDS instances")
 	instances, err := connection.RDS.GetInstances()
