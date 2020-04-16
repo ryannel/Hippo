@@ -77,7 +77,7 @@ func ConnectElasticSearch(region string, profile string) error {
 	return cmdAwaitInterrupt(cmd, errCh,"Shutting down SSH tunnel")
 }
 
-func ConnectPostgres(region string, profile string) error {
+func ConnectPostgres(region string, profile string, instanceName *string) error {
 	err := os.Setenv("AWS_PROFILE", profile)
 	if err != nil {
 		return err
@@ -107,8 +107,25 @@ func ConnectPostgres(region string, profile string) error {
 		return err
 	}
 
-	logger.Info("Finding endpoint for RDS instance: " + instances[0])
-	endpoint, err := connection.RDS.GetEndpoint(instances[0])
+	instance := instances[0]
+	if instanceName != nil {
+		instanceExists := false
+		for _, remoteInstance := range instances {
+			if remoteInstance == *instanceName {
+				instanceExists = true
+				break
+			}
+		}
+
+		if instanceExists {
+			instance = *instanceName
+		} else {
+			return errors.New("No instance "  + *instanceName + " available.")
+		}
+	}
+
+	logger.Info("Finding endpoint for RDS instance: " + instance)
+	endpoint, err := connection.RDS.GetEndpoint(instance)
 
 	pemFilePath, err := getCertificatePath()
 	if err != nil {

@@ -50,22 +50,32 @@ var awsConnectElasticSearchCmd = &cobra.Command{
 }
 
 var awsConnectPostgresCmd = &cobra.Command{
-	Use:   "postgres <profile>",
+	Use:   "postgres <profile> <instance>",
 	Short: "creates an ssh tunnel to postgres RDS instance on AWS",
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) > 1 {
-			return errors.New("profile name can't contain spaces")
+		if len(args) > 2 {
+			return errors.New("too many arguments")
 		}
 
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		profile := "default"
-		if len(args) > 0 {
+		var instance *string
+		if len(args) == 0 {
 			profile = args[0]
+			instance = nil
+		}
+		if len(args) == 1 {
+			profile = args[0]
+			instance = nil
+		}
+		if len(args) == 2 {
+			profile = args[0]
+			instance = &args[1]
 		}
 
-		err := aws.ConnectPostgres("eu-west-1", profile)
+		err := aws.ConnectPostgres("eu-west-1", profile, instance)
 		util.HandleFatalError(err)
 	},
 }
