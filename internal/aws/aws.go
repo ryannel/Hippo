@@ -124,7 +124,7 @@ func ConnectPostgres(region string, profile string, instanceName *string) error 
 		}
 	}
 
-	logger.Info("Finding endpoint for RDS instanceName: " + instance)
+	logger.Info("Finding endpoint for RDS instance: " + instance)
 	endpoint, err := connection.RDS.GetEndpoint(instance)
 
 	pemFilePath, err := getCertificatePath()
