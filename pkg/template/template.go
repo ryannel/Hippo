@@ -3,28 +3,33 @@ package template
 import "strings"
 
 func SqsDeployYaml() string {
-	return `apiVersion: extensions/v1beta1
+  return `apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app: sqs
   name: sqs
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: sqs
   template:
     metadata:
       labels:
-        app: sqs
+          app: sqs
     spec:
       containers:
+      - image: roribio16/alpine-sqs:latest
+        name: sqs
+        resources:
+          requests:
+            memory: 400Mi
+          limits:
+            memory: 1000Mi
+        ports:
         - name: sqs
-          image: roribio16/alpine-sqs:latest
-          imagePullPolicy: "IfNotPresent"
-          resources:
-            requests:
-              memory: 400Mi
-            limits:
-              memory: 1000Mi
-          ports:
-            - containerPort: 9324
+          containerPort: 9324
 ---
 apiVersion: v1
 kind: Service
@@ -34,20 +39,24 @@ metadata:
     app: sqs
 spec:
   ports:
-   - port: 9324
+    - name: sqs
+      port: 9324
   selector:
-   app: sqs
+    app: sqs
   type: LoadBalancer
 `
 }
 
 func PostgresDeployYaml(POSTGRES_DB string, POSTGRES_USER string, POSTGRES_PASSWORD string) string {
-	template := `apiVersion: extensions/v1beta1
+	template := `apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgresql
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: postgresql
   template:
     metadata:
       labels:
